@@ -41,3 +41,59 @@
     "vendor/font-awesome/solid",
     "vendor/font-awesome/brands"
 ;
+
+/* 全局统一正文大小 */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; /* 想更小就改 15px / 14px */
+  line-height: 1.5;
+}
+.page__content p,
+.page__content li,
+.page__content span {
+  font-size: 1em !important;
+}
+/* 论文配图通用样式（抽离为类） */
+.pub-img {
+    width: 200px;          /* 列表页图片宽度（统一） */
+    float: right;          /* 靠右排列 */
+    margin-left: 10px;     /* 与文字间距 */
+    // margin-bottom: 10px;   /* 与下方文字间距 */
+    border-radius: 6px;    /* 圆角 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 轻微阴影 */
+    height: auto;          /* 保持宽高比 */
+    max-width: 100%;       /* 防止超宽 */
+}
+
+/* 单篇论文页面配图优化 */
+.pub-img-content {
+    width: 90%; /* 图片宽度 */
+    border-radius: 10px; /* 圆角 */
+    display: block; /* 关键：将图片转为块级元素，才能居中 */
+    margin: 4px auto 4px; /* 上下间距+水平居中（核心） */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 轻微阴影 */
+    object-fit: cover; /* 防止图片拉伸变形 */
+}
+
+/* 移动端适配（自动调整） */
+@media (max-width: 768px) {
+    .pub-img {
+        float: none;       /* 移动端取消浮动 */
+        margin: 0 auto 10px; /* 居中+底部间距 */
+        width: 100%;        /* 占容器90%宽度 */
+    }
+}
+
+/* 日间模式正常蓝色，夜间模式变亮蓝 */
+.text-blue {
+  color: #2692ea;
+}
+
+.citation-wrapper {
+  cursor: help; /* 鼠标变成问号 */
+  border-bottom: 1px dashed #999; /* 底部虚线提示 */
+  display: inline-block;
+}
+.citation-wrapper:hover {
+  color: #007bff;
+}

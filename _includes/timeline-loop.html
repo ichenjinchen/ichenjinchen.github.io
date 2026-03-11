@@ -1,0 +1,115 @@
+<!-- _includes/timeline-loop.html - 时间轴循环渲染模板（固定，无需修改） -->
+<style>
+    /* 时间轴容器 */
+    .timeline-container {
+        position: relative;
+        max-width: 100%;
+        margin: 10px 0;
+        padding-left: 20px;
+        /* 预留足够空间给时间点 */
+    }
+
+    /* 左侧竖线 - 绝对居中 */
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 9px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #ccc;
+        /* 强制置顶，避免被其他元素遮挡 */
+        z-index: 0;
+    }
+
+    /* 单个时间轴条目 */
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    /* 时间点（圆形标记）- 精准对齐竖线中心 */
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        /* 核心：圆点宽度16px → 左偏移 = 21px（竖线中心） - 8px（圆点半径） = 13px */
+        left: -16px;
+        top: 4px;
+        /* 垂直居中对齐时间文字 */
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #2365ea;
+        border: 2px solid #fff;
+        /* 确保圆点在竖线上方 */
+        z-index: 1;
+        /* 可视化调试：临时加背景色，确认位置（调试完可删除） */
+        /* background: red; */
+    }
+
+    /* 时间文本样式 */
+    .timeline-time {
+        font-size: 15px;
+        font-weight: bold;
+        color: #2365ea;
+        margin-bottom: 4px;
+    }
+
+    /* 事件标题样式 */
+    .timeline-title {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    /* 图片容器（自适应排版） */
+    .timeline-img-container {
+        display: flex;
+        /* gap: 10px; */
+        flex-wrap: wrap;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    /* 图片样式（兼容pub-img-content类） */
+    .timeline-img-container .pub-img-content {
+        width: calc(50% - 5px);
+        max-width: 400px;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 单张图片占比100% */
+    .timeline-img-container .pub-img-content:only-child {
+        width: 100%;
+        max-width: 800px;
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+        .timeline-img-container .pub-img-content {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="timeline-container">
+    <!-- Liquid循环渲染时间轴条目 -->
+    {% for item in site.data.activities %}
+    <div class="timeline-item">
+        <!-- 渲染时间 -->
+        <div class="timeline-time">{{ item.time }}</div>
+        <!-- 渲染标题 -->
+        <div class="timeline-title">{{ item.title }}</div>
+        <!-- 判断是否有图片，有则渲染图片容器 -->
+        {% if item.images.size > 0 %}
+        <div class="timeline-img-container">
+            <!-- 循环渲染每张图片 -->
+            {% for img in item.images %}
+            <img class="pub-img-content" src="{{ img.src }}" alt="{{ img.alt }}">
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
