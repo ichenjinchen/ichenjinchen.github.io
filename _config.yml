@@ -15,7 +15,6 @@ name                     : &name "Jinchen CHEN"
 description              : &description "Your Name's academic portfolio"   # Update this with a general description of your site, this is the default if not overridden by a page
 #url                      : https://academicpages.github.io # The base hostname & protocol for your site e.g. "https://[your GitHub username].github.io",
                                                           # or if you already have some other page hosted on Github then use "https://[your GitHub username].github.io/[Your Repo Name]"
-#url                      : "http://127.0.0.1:4000"
 url                      : ""
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "ichenjinchen/ichenjinchen.github.io"
@@ -27,8 +26,8 @@ author:
   # Biographic information
   avatar           : "avatar.png"
   name             : "陈瑾辰(Jason)"
-  pronouns         : "男" # example: "she/her"  
-  bio              : "热爱数学和编程"
+  pronouns         : "自律使我强大" # example: "she/her"  
+  bio              : "欲戴王冠必承其重"
   location         : "上海市"
   employer         : "浦东新区明珠小学A区"
   uri              : # URL

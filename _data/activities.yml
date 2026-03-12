@@ -1,11 +1,14 @@
 # _data/study_timeline.yml - 研学经历数据（仅需维护这里）
 - time: "2025.06"
   title: "C919航空研学"
-  images: []  # 无图片则为空数组
-
+  images: 
+    - src: "/images/C919.png"
+      alt: "C919航空研学"
 - time: "2025.02"
   title: "上海自然博物馆研学"
-  images: []
+  images: 
+    - src: "/images/ziranbowuguan.png"
+      alt: "上海自然博物馆研学"
 
 - time: "2025.01"
   title: "东方绿舟实践活动"
