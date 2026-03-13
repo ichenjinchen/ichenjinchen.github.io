@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="/assets/css/table-sort.css">
+<script src="/assets/js/table-sort.js"></script>
+
+<table class="awards-table">
+  <thead>
+    <tr>
+      <th>时间</th>
+      <th>事件</th>
+      <th>奖项</th>
+      <th>等级</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% assign sorted = site.data.awards | sort: "time" | reverse %}
+    {% for row in sorted %}
+    <tr>
+      <td>{{ row.time }}</td>
+      <td>{{ row.event }}</td>
+      <td>{{ row.award }}</td>
+      <td>{{ row.level }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

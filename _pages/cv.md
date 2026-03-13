@@ -9,4 +9,4 @@ redirect_from:
 
 {% include base_path %}
 
-{% include awards.md %}
+{% include awards.html %}

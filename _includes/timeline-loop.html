@@ -95,18 +95,20 @@
 
 <div class="timeline-container">
     <!-- Liquid循环渲染时间轴条目 -->
-    {% for item in site.data.activities %}
+    {% for item in site.data.activities | sort: "time" | reverse %}
     <div class="timeline-item">
         <!-- 渲染时间 -->
         <div class="timeline-time">{{ item.time }}</div>
         <!-- 渲染标题 -->
         <div class="timeline-title">{{ item.title }}</div>
         <!-- 判断是否有图片，有则渲染图片容器 -->
-        {% if item.images.size > 0 %}
+        {% if item.images != "" and item.images != nil %}
+        {% assign imgs = item.images | split: "|" %}
         <div class="timeline-img-container">
-            <!-- 循环渲染每张图片 -->
-            {% for img in item.images %}
-            <img class="pub-img-content" src="{{ img.src }}" alt="{{ img.alt }}">
+            {% for img in imgs %}
+            {% if img != "" and img != nil%}
+            <img class="pub-img-content" src="/images/activities/{{img}}" alt="">
+            {% endif %}
             {% endfor %}
         </div>
         {% endif %}

@@ -1,6 +1,6 @@
 ---
 permalink: /markdown/
-title: "活动实践"
+title: "研学实践"
 author_profile: true
 redirect_from: []
 ---
