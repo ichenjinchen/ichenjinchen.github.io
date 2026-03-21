@@ -360,3 +360,7 @@ compress_html:
   clippings: all
   ignore:
     envs: development
+
+webrick:
+  # 增加超时时间，减少因处理慢导致的断开
+  timeout: 10
