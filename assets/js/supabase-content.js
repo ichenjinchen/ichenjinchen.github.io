@@ -366,7 +366,10 @@ function renderPresentation(profile, sections, awards, activities, awardCategori
   };
   target.querySelector("[data-presentation-prev]")?.addEventListener("click", () => show(current - 1));
   target.querySelector("[data-presentation-next]")?.addEventListener("click", () => show(current + 1));
-  target.querySelector("[data-presentation-fullscreen]")?.addEventListener("click", () => target.requestFullscreen?.());
+  target.querySelector("[data-presentation-fullscreen]")?.addEventListener("click", () => {
+    const fullscreenTarget = target.closest(".db-presentation-page") || target;
+    fullscreenTarget.requestFullscreen?.();
+  });
   target.querySelectorAll("[data-presentation-jump]").forEach((button) => button.addEventListener("click", () => show(Number(button.dataset.presentationJump))));
   target.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") show(current - 1);

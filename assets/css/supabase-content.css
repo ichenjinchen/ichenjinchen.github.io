@@ -13,6 +13,51 @@
   font-size: 1.05rem;
 }
 
+/* Keep the theme choice explicit while preserving the compact masthead. */
+#theme-menu { position: relative; }
+.db-theme-menu { position: relative; }
+.db-theme-menu > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  min-height: 2.5rem;
+  color: var(--global-masthead-link-color);
+  cursor: pointer;
+  list-style: none;
+}
+.db-theme-menu > summary::-webkit-details-marker { display: none; }
+.db-theme-menu > summary:hover { color: var(--global-masthead-link-color-hover); }
+.db-theme-menu-options {
+  position: absolute;
+  top: calc(100% + .55rem);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 7.5rem;
+  padding: .35rem;
+  border: 1px solid var(--global-border-color);
+  border-radius: 10px;
+  background: var(--global-bg-color);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .16);
+}
+.db-theme-menu-options [data-theme-choice] {
+  border: 0;
+  border-radius: 7px;
+  padding: .45rem .65rem;
+  color: var(--global-text-color);
+  background: transparent;
+  font: inherit;
+  font-size: .86rem;
+  text-align: left;
+  cursor: pointer;
+}
+.db-theme-menu-options [data-theme-choice]:hover,
+.db-theme-menu-options [data-theme-choice]:focus,
+.db-theme-menu-options [data-theme-choice].is-active { color: var(--global-link-color); background: var(--global-border-color); outline: 0; }
+.db-theme-menu-options [data-theme-choice].is-active::before { content: "✓"; display: inline-block; width: 1rem; }
+.db-theme-menu-options [data-theme-choice]:not(.is-active)::before { content: ""; display: inline-block; width: 1rem; }
+
 .db-overview-identity {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(150px, 24%);
@@ -146,6 +191,27 @@
 .db-presentation-stage {
   width: min(100%, calc((100vh - 240px) * 16 / 9));
   max-width: 1280px;
+  margin: 0 auto;
+}
+.db-presentation-page:fullscreen,
+.db-presentation-page:-webkit-full-screen {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  background: #0f1a26;
+}
+.db-presentation-page:fullscreen::backdrop,
+.db-presentation-page:-webkit-full-screen::backdrop { background: #0f1a26; }
+.db-presentation-page:fullscreen .db-presentation-stage,
+.db-presentation-page:-webkit-full-screen .db-presentation-stage {
+  width: min(100%, calc((100vh - 12rem) * 16 / 9));
   margin: 0 auto;
 }
 .db-presentation-mininav {
@@ -467,6 +533,15 @@
 .db-admin-success { color: #16794c; }
 
 @media (max-width: 700px) {
+  .db-presentation-page:fullscreen,
+  .db-presentation-page:-webkit-full-screen {
+    display: block;
+    height: auto;
+    min-height: 100vh;
+    padding: 1rem .75rem 2rem;
+  }
+  .db-presentation-page:fullscreen .db-presentation-stage,
+  .db-presentation-page:-webkit-full-screen .db-presentation-stage { width: 100%; }
   .db-overview-identity { grid-template-columns: minmax(0, 1fr) 130px; align-items: start; gap: .8rem; }
   .db-overview-feature-image { max-height: 110px; }
   .db-feature-grid { grid-template-columns: 1fr; }

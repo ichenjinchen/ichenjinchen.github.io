@@ -18,8 +18,17 @@
               <a href="{{ domain }}{{ link.url }}">{{ link.title }}</a>
             </li>
           {% endfor %}
-          <li id="theme-toggle" class="masthead__menu-item persist tail">
-            <a role="button" aria-labelledby="theme-icon"><i id="theme-icon" class="fa-solid fa-sun" aria-hidden="true" title="toggle theme"></i></a>
+          <li id="theme-menu" class="masthead__menu-item persist tail">
+            <details class="db-theme-menu" data-theme-menu>
+              <summary id="theme-menu-button" aria-label="主题设置" title="主题设置">
+                <i id="theme-icon" class="fa-solid fa-desktop" aria-hidden="true"></i>
+              </summary>
+              <div class="db-theme-menu-options" role="menu" aria-label="主题选项">
+                <div role="menuitemradio" tabindex="0" data-theme-choice="system" aria-checked="true">跟随系统</div>
+                <div role="menuitemradio" tabindex="0" data-theme-choice="light" aria-checked="false">浅色</div>
+                <div role="menuitemradio" tabindex="0" data-theme-choice="dark" aria-checked="false">深色</div>
+              </div>
+            </details>
           </li>
         </ul>
         <ul class="hidden-links hidden"></ul>
