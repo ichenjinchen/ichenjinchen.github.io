@@ -12,6 +12,7 @@
   color: #718096;
   font-size: 1.05rem;
 }
+.db-site-meta { color: var(--global-text-color-light); font-size: .82rem; }
 
 /* Keep the theme choice explicit while preserving the compact masthead. */
 #theme-menu { position: relative; }
