@@ -204,15 +204,33 @@
   min-height: 100vh;
   margin: 0;
   padding: 1rem;
-  overflow: auto;
+  overflow: hidden;
   background: #0f1a26;
 }
 .db-presentation-page:fullscreen::backdrop,
 .db-presentation-page:-webkit-full-screen::backdrop { background: #0f1a26; }
+.db-presentation-page:fullscreen > [data-presentation],
+.db-presentation-page:-webkit-full-screen > [data-presentation] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
 .db-presentation-page:fullscreen .db-presentation-stage,
 .db-presentation-page:-webkit-full-screen .db-presentation-stage {
+  box-sizing: border-box;
+  contain: layout;
+  flex: 0 0 auto;
   width: min(100%, calc((100vh - 12rem) * 16 / 9));
+  max-width: none;
   margin: 0 auto;
+}
+.db-presentation-page:fullscreen .db-presentation-slides,
+.db-presentation-page:-webkit-full-screen .db-presentation-slides {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
 }
 .db-presentation-mininav {
   display: grid;
@@ -539,7 +557,10 @@
     height: auto;
     min-height: 100vh;
     padding: 1rem .75rem 2rem;
+    overflow: auto;
   }
+  .db-presentation-page:fullscreen > [data-presentation],
+  .db-presentation-page:-webkit-full-screen > [data-presentation] { display: block; }
   .db-presentation-page:fullscreen .db-presentation-stage,
   .db-presentation-page:-webkit-full-screen .db-presentation-stage { width: 100%; }
   .db-overview-identity { grid-template-columns: minmax(0, 1fr) 130px; align-items: start; gap: .8rem; }
