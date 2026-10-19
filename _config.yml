@@ -19,12 +19,19 @@ url                      : ""
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "ichenjinchen/ichenjinchen.github.io"
 
+# Public browser configuration for Supabase. Publishable keys are intended for
+# browser applications; access is still enforced by the database RLS policies.
+# Never put a secret key in this file or in browser-side JavaScript.
+supabase:
+  project_url              : "https://cuvdudkqezbaxvbohhtv.supabase.co"
+  publishable_key          : "sb_publishable_Fwm_UFnzWOs1hiGA7QlUzQ_QL4te20P"
+
 # Site Author - The following control what appear as part of the author content on the side bar.
 #               If a field is blank the icon and link will not appear, otherwise it will be shown.
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "avatar.png"
+  avatar           : "sidebar-avatar.png"
   name             : "陈瑾辰(Jason)"
   pronouns         : "自律使我强大" # example: "she/her"  
   bio              : "欲戴王冠必承其重"
