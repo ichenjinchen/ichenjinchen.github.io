@@ -70,6 +70,7 @@ if (app) {
           ${field("头像地址", "avatar_url", siteProfile.avatar_url || "", "url")}
           ${field("一句话简介", "short_tagline", siteProfile.short_tagline || "")}
           ${field("生日显示", "birthday_label", siteProfile.birthday_label || "")}
+          ${field("概览个人描述数量（0 为全部）", "overview_profile_sections_limit", siteProfile.overview_profile_sections_limit ?? 3, "number", "required min=\"0\" max=\"50\" step=\"1\"")}
           ${textarea("SEO 描述", "seo_description", siteProfile.seo_description || "")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存基本资料</button></div>
@@ -248,6 +249,9 @@ if (app) {
       payload.is_offline = data.has("is_offline");
     }
     ["sort_order", "pin_order"].forEach((key) => { if (key in payload) payload[key] = Number(payload[key] || 1000); });
+    if ("overview_profile_sections_limit" in payload) {
+      payload.overview_profile_sections_limit = Math.min(50, Math.max(0, Number(payload.overview_profile_sections_limit || 0)));
+    }
     if (type === "profile") payload.section_type = payload.image_url ? "rich_text_image" : "rich_text";
     if (type === "activity") payload.image_paths = (payload.image_paths || "").split(/[\n,]/).map((value) => value.trim()).filter(Boolean);
     if (type === "site_profile") {

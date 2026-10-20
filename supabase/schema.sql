@@ -21,6 +21,8 @@ create table if not exists public.site_profile (
   avatar_url text not null default '',
   short_tagline text not null default '',
   seo_description text not null default '',
+  overview_profile_sections_limit smallint not null default 3
+    check (overview_profile_sections_limit between 0 and 50),
   updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );

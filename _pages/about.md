@@ -22,7 +22,7 @@ redirect_from:
 陈瑾辰的家庭秉持<span class="text-blue">“五育并重”</span>理念，父亲为<span class="text-blue">清华博士</span>，创办估值超100亿顶尖AI企业；母亲为<span class="text-blue">浙大硕士</span>，任职世界500强经理。和睦氛围培养了他乐观钻研的态度，也让他立志成为对国家与社会的有用之才。
 </div>
 
-<div data-profile-sections data-profile-sections-limit="3" hidden></div>
+<div data-profile-sections hidden></div>
 
 <div class="db-overview-links">
   <a class="btn btn--primary" href="/presentation/">打开简历演示</a>

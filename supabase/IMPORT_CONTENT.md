@@ -5,11 +5,12 @@
 ## 在 Supabase 中执行
 
 1. 确认已经执行过 `schema.sql`，并且 Supabase Auth 中存在管理员邮箱 `ichenjinchen@163.com`。
-2. 如果项目已经执行过旧版 `schema.sql`，先执行同目录下的 `migration_add_offline_labels.sql`，给荣誉和活动增加可配置的“线下”字段。
-3. 执行同目录下的 `migration_merge_study_tour.sql`，把“研学”和“科技实践”合并为“研学实践”，并迁移已有活动。
-4. 打开 Supabase Dashboard → **SQL Editor** → **New query**。
-5. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
-6. 执行下面的核对查询：
+2. 打开 Supabase Dashboard → **SQL Editor** → **New query**。
+3. 如果项目已经执行过旧版 `schema.sql`，先执行同目录下的 `migration_add_offline_labels.sql`，给荣誉和活动增加可配置的“线下”字段。
+4. 执行同目录下的 `migration_merge_study_tour.sql`，把“研学”和“科技实践”合并为“研学实践”，并迁移已有活动。
+5. 执行同目录下的 `migration_configurable_profile_sections_limit.sql`，增加概览个人描述显示数量配置。`0` 表示显示全部，`1–50` 表示最多显示对应数量。
+6. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
+7. 执行下面的核对查询：
 
 ```sql
 select count(*) as profile_sections from public.profile_sections;
@@ -51,6 +52,7 @@ supabase:
 - PPT/PDF 中新增、CSV 没有的条目会追加，例如“思维100”决赛、袋鼠数学 G5、SASMO、华数国际、YMO 以及 2026 年的三段研学经历。
 - 初始置顶项使用 PPT/PDF 中的重点成果；导入后可以直接在管理界面调整 `is_pinned` 和 `pin_order`。
 - 个人描述存储在 `profile_sections.body_markdown`，支持 Markdown；修改后不需要重新编译这份数据脚本。
+- 概览页展示多少个个人描述区块由 `site_profile.overview_profile_sections_limit` 控制，也可以在 `/admin/` 的“个人描述 → 基本资料”中修改；设为 `0` 时显示全部可见区块。
 
 ## 后续更新
 

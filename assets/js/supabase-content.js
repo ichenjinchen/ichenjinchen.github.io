@@ -138,11 +138,12 @@ function renderProfileSummary(profile, sections = []) {
   target.hidden = false;
 }
 
-function renderProfileSections(sections) {
+function renderProfileSections(sections, profile) {
   const target = document.querySelector("[data-profile-sections]");
   const fallback = document.querySelector("[data-profile-fallback]");
   if (!target || !sections.length) return;
-  const limit = Number(target.dataset.profileSectionsLimit || 0);
+  const configuredLimit = Number(profile?.overview_profile_sections_limit);
+  const limit = Number.isInteger(configuredLimit) && configuredLimit >= 0 ? configuredLimit : 3;
   const visibleSections = limit ? sections.slice(0, limit) : sections;
   target.innerHTML = visibleSections.map((section) => {
     const sectionImage = section.section_key === "overview" ? "" : section.image_url;
@@ -393,7 +394,7 @@ async function loadContent() {
   visibleAwards.sort(sortByDateDesc);
   visibleActivities.sort(sortByDateDesc);
   renderProfileSummary(profile, visibleSections);
-  renderProfileSections(visibleSections);
+  renderProfileSections(visibleSections, profile);
   renderFeaturedAwards(awardCategories || [], visibleAwards);
   renderFeaturedActivities(activityCategories || [], visibleActivities);
   const mergedActivities = mergeStudyTourCategories(activityCategories || [], visibleActivities);
