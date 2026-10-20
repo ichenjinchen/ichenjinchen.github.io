@@ -67,7 +67,7 @@ if (app) {
           ${field("班级", "class_name", siteProfile.class_name || "")}
           ${field("所在地", "location", siteProfile.location || "")}
           ${field("邮箱", "email", siteProfile.email || "", "email")}
-          ${field("头像地址", "avatar_url", siteProfile.avatar_url || "", "url")}
+          ${field("头像地址（支持站内路径或完整网址）", "avatar_url", siteProfile.avatar_url || "", "text", "placeholder=\"/images/portrait.png 或 https://...\"")}
           ${field("一句话简介", "short_tagline", siteProfile.short_tagline || "")}
           ${field("生日显示", "birthday_label", siteProfile.birthday_label || "")}
           ${field("概览个人描述数量（0 为全部）", "overview_profile_sections_limit", siteProfile.overview_profile_sections_limit ?? 3, "number", "required min=\"0\" max=\"50\" step=\"1\"")}
