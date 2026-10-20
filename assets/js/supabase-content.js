@@ -148,6 +148,40 @@ function setStatus(message, type = "info") {
   status.hidden = !message;
 }
 
+function formatDataUpdatedAt(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const parts = new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).formatToParts(date).reduce((result, part) => {
+    if (part.type !== "literal") result[part.type] = part.value;
+    return result;
+  }, {});
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+}
+
+function setDataUpdatedAt(rows) {
+  const target = document.querySelector("[data-data-updated]");
+  if (!target) return;
+  const timestamps = rows
+    .flatMap((row) => Array.isArray(row) ? row : [row])
+    .map((row) => row?.updated_at)
+    .filter(Boolean)
+    .map((value) => ({ value, time: Date.parse(value) }))
+    .filter(({ time }) => !Number.isNaN(time));
+  const latest = timestamps.sort((a, b) => b.time - a.time)[0];
+  target.dataset.timestamp = latest ? formatDataUpdatedAt(latest.value) : "";
+  target.hidden = !target.dataset.timestamp;
+  window.dispatchEvent(new CustomEvent("site-data-updated"));
+}
+
 function sortByDateDesc(a, b) {
   return String(b.sort_date || b.display_date || "").localeCompare(String(a.sort_date || a.display_date || ""));
 }
@@ -552,6 +586,7 @@ async function loadContent() {
     awardCategories: awardCategories || [],
     activityCategories: activityCategories || []
   };
+  setDataUpdatedAt([profile, visibleSections, visibleAwards, visibleActivities, awardCategories, activityCategories]);
   renderAllContent();
   setStatus("");
 }

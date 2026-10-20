@@ -12,8 +12,8 @@ site_theme               : "mint" # The available themes options are "default", 
 title                    : "陈瑾辰(Jason)"
 nav_title                : "陈瑾辰"
 # Update the version and Shanghai-local release timestamp together for each site release.
-site_version             : "v1.0.6"
-release_date             : "2026-10-20 13:29:45 +08:00"
+site_version             : "v1.0.7"
+release_date             : "2026-10-20 16:29:08 +08:00"
 title_separator          : "-"
 name                     : &name "Jinchen CHEN"
 description              : &description "Your Name's academic portfolio"   # Update this with a general description of your site, this is the default if not overridden by a page

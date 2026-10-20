@@ -54,6 +54,17 @@
   font-size: 1.05rem;
 }
 .db-site-meta { color: var(--global-text-color-light); font-size: .82rem; }
+.greedy-nav .visible-links {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.greedy-nav .visible-links > li {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.greedy-nav .visible-links > .db-language-menu-item { margin-left: auto; }
 .db-language-toggle {
   display: inline-flex;
   align-items: center;

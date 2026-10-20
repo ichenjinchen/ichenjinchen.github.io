@@ -22,5 +22,5 @@
 <div class="page__footer-copyright">
   &copy; {{ site.time | date: '%Y' }} {{ site.name | default: site.title }}, <span data-i18n-key="poweredBy">{{ site.data.ui-text[site.locale].powered_by | default: "Powered by" }}</span> <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/academicpages/academicpages.github.io">AcademicPages</a>, a fork of <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.<br />
   <span class="db-site-meta" data-site-meta data-version="{{ site.site_version | escape }}" data-release-date="{{ site.release_date | escape }}">版本 {{ site.site_version }} · 发布日期 {{ site.release_date }}</span><br />
-  <span data-site-updated data-date="{{ "now" | date: '%Y-%m-%d' }}">Site last updated {{ "now" | date: '%Y-%m-%d' }}</span>
+  <span class="db-site-meta" data-data-updated hidden></span>
 </div>

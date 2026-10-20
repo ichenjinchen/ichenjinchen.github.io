@@ -23,7 +23,7 @@
       feed: "订阅",
       website: "网站",
       email: "邮箱",
-      siteUpdated: "网站最后更新",
+      dataUpdated: "数据最后更新",
       version: "版本",
       releaseDate: "发布时间",
       overview: "个人概览",
@@ -95,7 +95,7 @@
       feed: "Feed",
       website: "Website",
       email: "Email",
-      siteUpdated: "Site last updated",
+      dataUpdated: "Data last updated",
       version: "Version",
       releaseDate: "Released",
       overview: "Overview",
@@ -241,8 +241,12 @@
         ? `Version ${version} · Released ${releaseDate}`
         : `版本 ${version} · 发布时间 ${releaseDate}`;
     }
-    const updated = document.querySelector("[data-site-updated]");
-    if (updated) updated.textContent = `${text("siteUpdated")} ${updated.dataset.date || ""}`;
+    const updated = document.querySelector("[data-data-updated]");
+    if (updated) {
+      const timestamp = updated.dataset.timestamp || "";
+      updated.textContent = timestamp ? `${text("dataUpdated")} ${timestamp}` : "";
+      updated.hidden = !timestamp;
+    }
     setLanguageLabel();
   };
 
@@ -263,6 +267,8 @@
     setLanguage,
     apply: applyStaticTranslations
   };
+
+  window.addEventListener("site-data-updated", applyStaticTranslations);
 
   const init = () => {
     document.querySelector("[data-language-toggle]")?.addEventListener("click", (event) => {
