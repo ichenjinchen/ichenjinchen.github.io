@@ -21,7 +21,7 @@
   </div>
 
   <div class="author__urls-wrapper">
-    <button class="btn btn--inverse">Follow</button>
+    <button class="btn btn--inverse" data-i18n-key="follow">Follow</button>
     <ul class="author__urls social-icons">
       <!-- Font Awesome icons / Biographic information  -->
       {% if author.location %}
@@ -31,11 +31,11 @@
         <li class="author__desktop" data-sidebar-field="employer"><i class="fas fa-fw fa-building-columns icon-pad-right" aria-hidden="true"></i><span data-sidebar-value="employer">{{ author.employer | escape }}</span></li>
       {% else %}<li class="author__desktop" data-sidebar-field="employer" hidden><i class="fas fa-fw fa-building-columns icon-pad-right" aria-hidden="true"></i><span data-sidebar-value="employer"></span></li>{% endif %}
       {% if author.uri %}
-        <li data-sidebar-field="website"><a data-sidebar-link="website" href="{{ author.uri | escape }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].website_label | default: "Website" }}</a></li>
-      {% else %}<li data-sidebar-field="website" hidden><a data-sidebar-link="website"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].website_label | default: "Website" }}</a></li>{% endif %}
+        <li data-sidebar-field="website"><a data-sidebar-link="website" href="{{ author.uri | escape }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i><span data-i18n-key="website">{{ site.data.ui-text[site.locale].website_label | default: "Website" }}</span></a></li>
+      {% else %}<li data-sidebar-field="website" hidden><a data-sidebar-link="website"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i><span data-i18n-key="website">{{ site.data.ui-text[site.locale].website_label | default: "Website" }}</span></a></li>{% endif %}
       {% if author.email %}
-        <li data-sidebar-field="email"><a data-sidebar-link="email" href="mailto:{{ author.email | escape }}"><i class="fas fa-fw fa-envelope icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].email_label | default: "Email" }}</a></li>
-      {% else %}<li data-sidebar-field="email" hidden><a data-sidebar-link="email"><i class="fas fa-fw fa-envelope icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].email_label | default: "Email" }}</a></li>{% endif %}
+        <li data-sidebar-field="email"><a data-sidebar-link="email" href="mailto:{{ author.email | escape }}"><i class="fas fa-fw fa-envelope icon-pad-right" aria-hidden="true"></i><span data-i18n-key="email">{{ site.data.ui-text[site.locale].email_label | default: "Email" }}</span></a></li>
+      {% else %}<li data-sidebar-field="email" hidden><a data-sidebar-link="email"><i class="fas fa-fw fa-envelope icon-pad-right" aria-hidden="true"></i><span data-i18n-key="email">{{ site.data.ui-text[site.locale].email_label | default: "Email" }}</span></a></li>{% endif %}
 
       <!-- Font Awesome and Academicons icons / Academic websites -->
       {% if author.academia %}

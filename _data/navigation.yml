@@ -25,12 +25,16 @@ main:
     
   - title: "概览"
     url: /
+    i18n_key: navOverview
 
   - title: "荣誉"
     url: /cv/
+    i18n_key: navHonors
 
   - title: "研学"
     url: /activities/
+    i18n_key: navStudy
 
   - title: "演示"
     url: /presentation/
+    i18n_key: navPresentation

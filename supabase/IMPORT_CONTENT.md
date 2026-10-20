@@ -10,8 +10,9 @@
 4. 执行同目录下的 `migration_merge_study_tour.sql`，把“研学”和“科技实践”合并为“研学实践”，并迁移已有活动。
 5. 执行同目录下的 `migration_configurable_profile_sections_limit.sql`，增加概览个人描述显示数量配置。`0` 表示显示全部，`1–50` 表示最多显示对应数量。
 6. 执行同目录下的 `migration_sidebar_profile_fields.sql`，增加左侧栏名称、签名、简介、头像、个人网站和 GitHub 链接配置。
-7. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
-8. 执行下面的核对查询：
+7. 执行同目录下的 `migration_add_english_content.sql`，为个人资料、个人描述、分类、荣誉和活动增加可选英文栏位。留空的英文内容会自动显示中文。
+8. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
+9. 执行下面的核对查询：
 
 ```sql
 select count(*) as profile_sections from public.profile_sections;
@@ -55,6 +56,7 @@ supabase:
 - 个人描述存储在 `profile_sections.body_markdown`，支持 Markdown；修改后不需要重新编译这份数据脚本。
 - 概览页展示多少个个人描述区块由 `site_profile.overview_profile_sections_limit` 控制，也可以在 `/admin/` 的“个人描述 → 基本资料”中修改；设为 `0` 时显示全部可见区块。
 - 左侧栏展示资料也可以在 `/admin/` 的“个人描述 → 基本资料”中维护；所在地、学校和邮箱与基本资料共用。更新后页面会从 Supabase 读取，API 不可用时仍显示静态回退内容。
+- 网站右上角可切换中文和英文；偏好保存在当前浏览器中。英文内容可在 `/admin/` 对应记录的英文字段中填写，空白项会回退到中文。首次启用时，需要先执行 `migration_add_english_content.sql`。
 
 ## 后续更新
 

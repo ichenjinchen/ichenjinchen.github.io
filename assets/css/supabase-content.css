@@ -54,6 +54,21 @@
   font-size: 1.05rem;
 }
 .db-site-meta { color: var(--global-text-color-light); font-size: .82rem; }
+.db-language-toggle {
+  min-height: 2.35rem;
+  padding: .35rem .65rem;
+  border: 1px solid var(--global-border-color);
+  border-radius: 999px;
+  color: var(--global-masthead-link-color);
+  background: transparent;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.db-language-toggle:hover,
+.db-language-toggle:focus-visible { color: var(--global-link-color); border-color: var(--global-link-color); outline: 0; }
 
 /* Keep the theme choice explicit while preserving the compact masthead. */
 #theme-menu { position: relative; }

@@ -79,21 +79,29 @@ if (app) {
           ${field("姓名", "name", siteProfile.name || "", "text", "required")}
           ${field("英文名", "english_name", siteProfile.english_name || "")}
           ${field("学校 / 机构（基本资料和左侧栏）", "school", siteProfile.school || "")}
+          ${field("学校 / 机构（英文）", "school_en", siteProfile.school_en || "")}
           ${field("年级", "grade", siteProfile.grade || "")}
+          ${field("年级（英文）", "grade_en", siteProfile.grade_en || "")}
           ${field("班级", "class_name", siteProfile.class_name || "")}
+          ${field("班级（英文）", "class_name_en", siteProfile.class_name_en || "")}
           ${field("所在地（基本资料和左侧栏）", "location", siteProfile.location || "")}
+          ${field("所在地（英文）", "location_en", siteProfile.location_en || "")}
           ${field("邮箱（基本资料和左侧栏）", "email", siteProfile.email || "", "email")}
           ${field("头像地址（支持站内路径或完整网址）", "avatar_url", siteProfile.avatar_url || "", "text", "placeholder=\"/images/portrait.png 或 https://...\"")}
           ${field("一句话简介", "short_tagline", siteProfile.short_tagline || "")}
+          ${field("一句话简介（英文）", "short_tagline_en", siteProfile.short_tagline_en || "")}
           ${field("生日显示", "birthday_label", siteProfile.birthday_label || "")}
           ${field("概览个人描述数量（0 为全部）", "overview_profile_sections_limit", siteProfile.overview_profile_sections_limit ?? 3, "number", "required min=\"0\" max=\"50\" step=\"1\"")}
           <h3 class="db-form-section-title db-field-full">左侧栏</h3>
           ${field("显示名称", "sidebar_name", siteProfile.sidebar_name || "")}
+          ${field("显示名称（英文）", "sidebar_name_en", siteProfile.sidebar_name_en || "")}
           ${field("侧栏头像（支持站内路径或完整网址）", "sidebar_avatar_url", siteProfile.sidebar_avatar_url || "/images/sidebar-avatar.png", "text", "placeholder=\"/images/sidebar-avatar.png 或 https://...\"")}
           ${field("个性签名", "sidebar_pronouns", siteProfile.sidebar_pronouns || "")}
+          ${field("个性签名（英文）", "sidebar_pronouns_en", siteProfile.sidebar_pronouns_en || "")}
           ${field("个人网站", "sidebar_website_url", siteProfile.sidebar_website_url || "", "text", "placeholder=\"https://example.com\"")}
           ${field("GitHub 个人主页", "sidebar_github_url", siteProfile.sidebar_github_url || "", "text", "placeholder=\"https://github.com/用户名\" ")}
           ${textarea("侧栏简介", "sidebar_bio", siteProfile.sidebar_bio || "")}
+          ${textarea("侧栏简介（英文）", "sidebar_bio_en", siteProfile.sidebar_bio_en || "")}
           ${textarea("SEO 描述", "seo_description", siteProfile.seo_description || "")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存基本资料</button></div>
@@ -103,11 +111,14 @@ if (app) {
         <div class="db-form-grid">
           ${field("区块 key", "section_key", record.section_key || "")}
           ${field("标题", "title", record.title || "")}
+          ${field("标题（英文）", "title_en", record.title_en || "")}
           ${field("副标题", "subtitle", record.subtitle || "")}
+          ${field("副标题（英文）", "subtitle_en", record.subtitle_en || "")}
           ${field("排序", "sort_order", record.sort_order ?? 100, "number")}
           ${field("图片地址", "image_url", record.image_url || "")}
           ${checkbox("显示", "is_visible", record.is_visible !== false)}
           ${textarea("Markdown 内容", "body_markdown", record.body_markdown || "", "required")}
+          ${textarea("Markdown 内容（英文）", "body_markdown_en", record.body_markdown_en || "")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存</button><button class="btn btn--inverse" type="button" data-cancel="profile">取消</button></div>
       </form>
@@ -125,11 +136,13 @@ if (app) {
         <div class="db-form-grid">
           <label>内容类型<select name="content_type"><option value="award" ${record.content_type === "award" ? "selected" : ""}>荣誉</option><option value="activity" ${record.content_type === "activity" ? "selected" : ""}>活动</option></select></label>
           ${field("名称", "name", record.name || "", "text", "required")}
+          ${field("名称（英文）", "name_en", record.name_en || "")}
           ${field("slug", "slug", record.slug || "", "text", "required")}
           <label>颜色<select name="accent_color">${["gold", "blue", "green", "purple", "gray"].map((color) => `<option value="${color}" ${record.accent_color === color ? "selected" : ""}>${color}</option>`).join("")}</select></label>
           ${field("排序", "sort_order", record.sort_order ?? 100, "number")}
           ${checkbox("显示", "is_visible", record.is_visible !== false)}
           ${textarea("描述", "description", record.description || "")}
+          ${textarea("描述（英文）", "description_en", record.description_en || "")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存</button><button class="btn btn--inverse" type="button" data-cancel="category">取消</button></div>
       </form>
@@ -149,14 +162,18 @@ if (app) {
           ${field("显示日期", "display_date", record.display_date || "", "text", "required")}
           ${field("排序日期", "sort_date", record.sort_date || "", "date")}
           ${field("事件名称", "title", record.title || "", "text", "required")}
+          ${field("事件名称（英文）", "title_en", record.title_en || "")}
           ${field("奖项结果", "result", record.result || "")}
+          ${field("奖项结果（英文）", "result_en", record.result_en || "")}
           ${field("等级", "level", record.level || "")}
+          ${field("等级（英文）", "level_en", record.level_en || "")}
           ${field("置顶顺序", "pin_order", record.pin_order ?? 1000, "number")}
           ${field("普通排序", "sort_order", record.sort_order ?? 1000, "number")}
           ${checkbox("置顶", "is_pinned", record.is_pinned)}
           ${checkbox("线下", "is_offline", record.is_offline)}
           ${checkbox("显示", "is_visible", record.is_visible !== false)}
           ${textarea("补充描述", "description", record.description || "")}
+          ${textarea("补充描述（英文）", "description_en", record.description_en || "")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存</button><button class="btn btn--inverse" type="button" data-cancel="award">取消</button></div>
       </form>
@@ -176,12 +193,14 @@ if (app) {
           ${field("显示日期", "display_date", record.display_date || "", "text", "required")}
           ${field("排序日期", "sort_date", record.sort_date || "", "date")}
           ${field("活动名称", "title", record.title || "", "text", "required")}
+          ${field("活动名称（英文）", "title_en", record.title_en || "")}
           ${field("置顶顺序", "pin_order", record.pin_order ?? 1000, "number")}
           ${field("普通排序", "sort_order", record.sort_order ?? 1000, "number")}
           ${checkbox("置顶", "is_pinned", record.is_pinned)}
           ${checkbox("线下", "is_offline", record.is_offline)}
           ${checkbox("显示", "is_visible", record.is_visible !== false)}
           ${textarea("活动描述", "description", record.description || "")}
+          ${textarea("活动描述（英文）", "description_en", record.description_en || "")}
           ${textarea("图片地址（每行一个）", "image_paths", (record.image_paths || []).join("\n"))}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存</button><button class="btn btn--inverse" type="button" data-cancel="activity">取消</button></div>

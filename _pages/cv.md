@@ -11,7 +11,7 @@ redirect_from:
 
 <div class="db-content-status" data-db-status hidden></div>
 <div data-db-page data-page-type="awards">
-<nav class="db-category-nav" data-category-nav aria-label="荣誉分类"></nav>
+<nav class="db-category-nav" data-category-nav data-i18n-aria-key="honorCategories" aria-label="荣誉分类"></nav>
 
 <div data-awards-fallback>
 {% include awards.html %}

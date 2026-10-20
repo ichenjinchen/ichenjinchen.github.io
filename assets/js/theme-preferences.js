@@ -13,6 +13,11 @@
     return media.matches ? "dark" : "light";
   };
 
+  const themeLabel = (setting) => {
+    const key = setting === "system" ? "themeSystem" : setting === "dark" ? "themeDark" : "themeLight";
+    return window.SiteI18n?.text(key) || (setting === "system" ? "跟随系统" : setting === "dark" ? "深色模式" : "浅色模式");
+  };
+
   const updateThemeUi = (setting) => {
     const icon = document.querySelector("#theme-icon");
     const menu = document.querySelector("[data-theme-menu]");
@@ -20,7 +25,7 @@
     if (icon) {
       icon.classList.remove("fa-sun", "fa-moon", "fa-desktop");
       icon.classList.add(setting === "system" ? "fa-desktop" : resolved === "dark" ? "fa-moon" : "fa-sun");
-      icon.title = setting === "system" ? "跟随系统" : setting === "dark" ? "深色模式" : "浅色模式";
+      icon.title = themeLabel(setting);
     }
     if (menu) {
       menu.dataset.themeSetting = setting;
@@ -70,6 +75,7 @@
         }
       });
     });
+    window.addEventListener("site-language-change", () => updateThemeUi(getThemeSetting()));
     media.addEventListener("change", () => {
       if (getThemeSetting() === "system") {
         applyTheme("system", false);
