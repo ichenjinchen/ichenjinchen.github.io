@@ -6,7 +6,7 @@
 */
 
 var $nav = $('#site-nav');
-var $btn = $('#site-nav button');
+var $btn = $('#site-nav > button.nav-toggle');
 var $vlinks = $('#site-nav .visible-links');
 var $vlinks_persist_tail = $vlinks.children("*.persist.tail");
 var $hlinks = $('#site-nav .hidden-links');
@@ -14,6 +14,14 @@ var $hlinks = $('#site-nav .hidden-links');
 var breaks = [];
 
 function updateNav() {
+
+  // This site's primary navigation is intentionally always visible. Keep the
+  // legacy priority-plus plugin from moving text links into a dropdown.
+  if ($nav.hasClass('db-static-nav')) {
+    $btn.addClass('hidden');
+    $hlinks.empty().addClass('hidden');
+    return;
+  }
 
   var availableSpace = $btn.hasClass('hidden') ? $nav.width() : $nav.width() - $btn.width() - 30;
 
