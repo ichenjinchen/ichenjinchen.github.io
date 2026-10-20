@@ -10,6 +10,12 @@ create extension if not exists pgcrypto;
 create table if not exists public.site_profile (
   id smallint primary key default 1 check (id = 1),
   name text not null default '陈瑾辰',
+  sidebar_name text not null default '陈瑾辰(Jason)',
+  sidebar_pronouns text not null default '男',
+  sidebar_bio text not null default '好好学习，天天向上',
+  sidebar_avatar_url text not null default '/images/sidebar-avatar.png',
+  sidebar_website_url text not null default '',
+  sidebar_github_url text not null default 'https://github.com/ichenjinchen',
   english_name text not null default '',
   birthday_label text not null default '',
   school text not null default '',

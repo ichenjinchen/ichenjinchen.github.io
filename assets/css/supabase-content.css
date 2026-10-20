@@ -7,6 +7,47 @@
   border-radius: 10px;
 }
 
+.db-admin-toast {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 1200;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(30rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: .85rem 1.1rem .85rem 2.8rem;
+  border: 1px solid #b8e2ce;
+  border-left: 4px solid #178653;
+  background: #f0fbf5;
+  color: #155d3a;
+  box-shadow: 0 14px 38px rgba(20, 42, 34, .2);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.db-admin-toast::before {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  display: grid;
+  width: 1.2rem;
+  height: 1.2rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #178653;
+  color: #fff;
+  content: "✓";
+  font-size: .78rem;
+  font-weight: 800;
+  transform: translateY(-50%);
+}
+.db-admin-toast.is-leaving { opacity: 0; transform: translateY(.55rem); pointer-events: none; }
+.db-admin-toast.db-admin-error { border-color: #f1c4c2; border-left-color: #c03935; background: #fff6f5; color: #8c2622; }
+.db-admin-toast.db-admin-error::before { background: #c03935; content: "!"; }
+.db-admin-toast.db-admin-info { border-color: #bfd8f5; border-left-color: #2365ea; background: #f2f7ff; color: #254d85; }
+.db-admin-toast.db-admin-info::before { background: #2365ea; content: "i"; }
+
 .db-page-intro {
   margin: -.35rem 0 1.5rem;
   color: #718096;
@@ -154,27 +195,34 @@
 
 .db-category-nav {
   display: flex;
-  gap: .45rem;
+  align-items: center;
+  gap: .55rem;
   margin: 0 0 1.6rem;
-  padding: .35rem;
+  padding: .2rem 0 .35rem;
   overflow-x: auto;
-  border: 1px solid #d9e1ec;
-  background: #f7f9fc;
-  border-radius: 12px;
-  box-shadow: 0 5px 16px rgba(34, 53, 76, .05);
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d2e2 transparent;
 }
 .db-category-link {
   flex: 0 0 auto;
-  padding: .5rem .75rem;
+  padding: .58rem 1rem;
+  border: 1px solid #dbe4ef;
+  background: #fff;
   color: #4a5568;
   font-size: .9rem;
+  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
-  border-radius: 8px;
-  transition: background .2s ease, color .2s ease;
+  border-radius: 999px;
+  box-shadow: 0 2px 7px rgba(34, 53, 76, .045);
+  transition: background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
-.db-category-link:hover,
-.db-category-link.is-active { background: #2365ea; color: #fff; }
+.db-category-link:hover { border-color: #aac4f5; background: #f6f9ff; color: #174daf; transform: translateY(-1px); }
+.db-category-link:focus-visible { outline: 3px solid rgba(35, 101, 234, .3); outline-offset: 2px; }
+.db-category-link.is-active { border-color: transparent; background: linear-gradient(135deg, #2365ea, #4788f5); color: #fff; box-shadow: 0 7px 16px rgba(35, 101, 234, .24); }
 
 .db-presentation-page {
   --ppt-navy: #0e2742;
@@ -508,6 +556,13 @@
 }
 
 .db-form-grid .db-field-full { grid-column: 1 / -1; }
+.db-form-section-title {
+  margin: .5rem 0 -.15rem;
+  padding-top: .75rem;
+  border-top: 1px solid #e1e8f0;
+  color: #42526b;
+  font-size: 1rem;
+}
 
 .db-admin label {
   display: flex;
@@ -567,6 +622,9 @@
   .db-overview-identity { grid-template-columns: minmax(0, 1fr) 130px; align-items: start; gap: .8rem; }
   .db-overview-feature-image { max-height: 110px; }
   .db-feature-grid { grid-template-columns: 1fr; }
+  .db-category-nav { gap: .45rem; margin-bottom: 1.2rem; padding-bottom: .25rem; scrollbar-width: none; }
+  .db-category-nav::-webkit-scrollbar { display: none; }
+  .db-category-link { padding: .52rem .86rem; font-size: .86rem; }
   .db-section-heading { align-items: center; flex-direction: row; gap: .5rem; }
   .db-section-heading > div { min-width: 0; }
   .db-section-heading .db-text-link { flex: 0 0 auto; white-space: nowrap; font-size: .86rem; }
@@ -621,13 +679,11 @@ html[data-theme="dark"] .db-feature-card-description,
 html[data-theme="dark"] .db-feature-card p { color: #b9c9d9; }
 html[data-theme="dark"] .db-overview-identity { border-color: #3a4d61; }
 html[data-theme="dark"] .db-feature-card,
-html[data-theme="dark"] .db-category-nav,
 html[data-theme="dark"] .db-admin form { border-color: #3b5065; background: #182735; color: #edf3f9; }
 html[data-theme="dark"] .db-feature-card-pinned { background: #3a321f; }
-html[data-theme="dark"] .db-category-nav { background: #142231; }
-html[data-theme="dark"] .db-category-link { color: #c7d5e3; }
-html[data-theme="dark"] .db-category-link:hover,
-html[data-theme="dark"] .db-category-link.is-active { background: #3c83c5; color: #fff; }
+html[data-theme="dark"] .db-category-link { border-color: #3b5065; background: #182735; color: #c7d5e3; }
+html[data-theme="dark"] .db-category-link:hover { border-color: #5c83aa; background: #20384d; color: #edf6ff; }
+html[data-theme="dark"] .db-category-link.is-active { border-color: transparent; background: linear-gradient(135deg, #337fc8, #4a9bdb); color: #fff; box-shadow: 0 7px 16px rgba(0, 0, 0, .25); }
 html[data-theme="dark"] .db-awards-table th,
 html[data-theme="dark"] .db-awards-table td,
 html[data-theme="dark"] .db-admin-table th,
@@ -658,3 +714,14 @@ html[data-theme="dark"] .db-presentation-activity-grid article { background: #30
 html[data-theme="dark"] .db-admin input,
 html[data-theme="dark"] .db-admin select,
 html[data-theme="dark"] .db-admin textarea { border-color: #486076; background: #111c28; color: #edf3f9; }
+html[data-theme="dark"] .db-form-section-title { border-color: #3a4d61; color: #d9e8f7; }
+html[data-theme="dark"] .db-admin-toast.db-admin-success { border-color: #316a50; border-left-color: #53c486; background: #173829; color: #d9f7e7; }
+html[data-theme="dark"] .db-admin-toast.db-admin-error { border-color: #75413e; border-left-color: #f17b74; background: #3a211f; color: #ffe3e1; }
+html[data-theme="dark"] .db-admin-toast.db-admin-info { border-color: #3c5c7d; border-left-color: #77b7f2; background: #1b2e42; color: #d9e8f7; }
+html[data-theme="dark"] .db-admin-toast.db-admin-success::before { background: #53c486; color: #10261a; }
+html[data-theme="dark"] .db-admin-toast.db-admin-error::before { background: #f17b74; color: #351816; }
+html[data-theme="dark"] .db-admin-toast.db-admin-info::before { background: #77b7f2; color: #102030; }
+
+@media (prefers-reduced-motion: reduce) {
+  .db-admin-toast { transition: none; }
+}

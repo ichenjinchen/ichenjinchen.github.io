@@ -9,8 +9,9 @@
 3. 如果项目已经执行过旧版 `schema.sql`，先执行同目录下的 `migration_add_offline_labels.sql`，给荣誉和活动增加可配置的“线下”字段。
 4. 执行同目录下的 `migration_merge_study_tour.sql`，把“研学”和“科技实践”合并为“研学实践”，并迁移已有活动。
 5. 执行同目录下的 `migration_configurable_profile_sections_limit.sql`，增加概览个人描述显示数量配置。`0` 表示显示全部，`1–50` 表示最多显示对应数量。
-6. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
-7. 执行下面的核对查询：
+6. 执行同目录下的 `migration_sidebar_profile_fields.sql`，增加左侧栏名称、签名、简介、头像、个人网站和 GitHub 链接配置。
+7. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
+8. 执行下面的核对查询：
 
 ```sql
 select count(*) as profile_sections from public.profile_sections;
@@ -53,6 +54,7 @@ supabase:
 - 初始置顶项使用 PPT/PDF 中的重点成果；导入后可以直接在管理界面调整 `is_pinned` 和 `pin_order`。
 - 个人描述存储在 `profile_sections.body_markdown`，支持 Markdown；修改后不需要重新编译这份数据脚本。
 - 概览页展示多少个个人描述区块由 `site_profile.overview_profile_sections_limit` 控制，也可以在 `/admin/` 的“个人描述 → 基本资料”中修改；设为 `0` 时显示全部可见区块。
+- 左侧栏展示资料也可以在 `/admin/` 的“个人描述 → 基本资料”中维护；所在地、学校和邮箱与基本资料共用。更新后页面会从 Supabase 读取，API 不可用时仍显示静态回退内容。
 
 ## 后续更新
 

@@ -4,6 +4,7 @@ const config = {
   projectUrl: document.querySelector('meta[name="supabase-project-url"]')?.content || "",
   publishableKey: document.querySelector('meta[name="supabase-publishable-key"]')?.content || ""
 };
+let siteProfileRequest;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -24,6 +25,95 @@ async function selectRows(table, filters = {}) {
   });
   if (!response.ok) throw new Error(`Supabase 请求失败（${response.status}）：${await response.text()}`);
   return response.json();
+}
+
+function getSiteProfile() {
+  if (!siteProfileRequest) {
+    siteProfileRequest = selectRows("site_profile", { "id": "eq.1", limit: "1" }).then((rows) => rows[0] || null);
+  }
+  return siteProfileRequest;
+}
+
+function sidebarAvatarUrl(value) {
+  const path = String(value || "").trim();
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith("/") && !path.startsWith("//")) return path;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return "";
+  return `/images/${path.replace(/^\/+/, "").replace(/^images\//, "")}`;
+}
+
+function sidebarExternalUrl(value) {
+  try {
+    const url = new URL(String(value || "").trim());
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function renderSidebarProfile(profile) {
+  const target = document.querySelector("[data-sidebar-profile]");
+  if (!target || !profile) return;
+
+  const setText = (key, value, fallback = "") => {
+    const element = target.querySelector(`[data-sidebar-field="${key}"]`);
+    if (!element) return;
+    const text = String(value || fallback || "").trim();
+    if (["location", "employer"].includes(key)) {
+      const valueElement = target.querySelector(`[data-sidebar-value="${key}"]`);
+      if (valueElement) valueElement.textContent = text;
+    } else {
+      element.textContent = text;
+    }
+    element.hidden = !text;
+  };
+
+  setText("name", profile.sidebar_name, profile.name);
+  if ("sidebar_pronouns" in profile) setText("pronouns", profile.sidebar_pronouns);
+  if ("sidebar_bio" in profile) setText("bio", profile.sidebar_bio);
+  setText("location", profile.location);
+  setText("employer", profile.school);
+
+  const avatar = target.querySelector('[data-sidebar-field="avatar"]');
+  const avatarUrl = "sidebar_avatar_url" in profile ? sidebarAvatarUrl(profile.sidebar_avatar_url) : "";
+  if (avatar && avatarUrl) {
+    avatar.src = avatarUrl;
+    avatar.alt = String(profile.sidebar_name || profile.name || "个人头像");
+  }
+
+  const email = String(profile.email || "").trim();
+  const emailItem = target.querySelector('[data-sidebar-field="email"]');
+  const emailLink = target.querySelector('[data-sidebar-link="email"]');
+  if (emailItem && emailLink) {
+    emailItem.hidden = !email;
+    if (email) emailLink.href = `mailto:${email}`;
+  }
+
+  const websiteUrl = sidebarExternalUrl(profile.sidebar_website_url);
+  const websiteItem = target.querySelector('[data-sidebar-field="website"]');
+  const websiteLink = target.querySelector('[data-sidebar-link="website"]');
+  if (websiteItem && websiteLink && "sidebar_website_url" in profile) {
+    websiteItem.hidden = !websiteUrl;
+    if (websiteUrl) websiteLink.href = websiteUrl;
+  }
+
+  const githubUrl = "sidebar_github_url" in profile ? sidebarExternalUrl(profile.sidebar_github_url) : "";
+  const githubItem = target.querySelector('[data-sidebar-field="github"]');
+  const githubLink = target.querySelector('[data-sidebar-link="github"]');
+  if (githubItem && githubLink && "sidebar_github_url" in profile) {
+    githubItem.hidden = !githubUrl;
+    if (githubUrl) githubLink.href = githubUrl;
+  }
+}
+
+async function loadSidebarProfile() {
+  if (!document.querySelector("[data-sidebar-profile]") || !config.projectUrl || !config.publishableKey) return;
+  try {
+    renderSidebarProfile(await getSiteProfile());
+  } catch {
+    // Keep the static Jekyll-rendered sidebar as a fallback when the API is unavailable.
+  }
 }
 
 function setStatus(message, type = "info") {
@@ -383,14 +473,14 @@ async function loadContent() {
   if (!page) return;
   if (!config.projectUrl || !config.publishableKey) return;
   const [profiles, visibleSections, visibleAwards, visibleActivities, awardCategories, activityCategories] = await Promise.all([
-    selectRows("site_profile", { "id": "eq.1", limit: "1" }),
+    getSiteProfile(),
     selectRows("profile_sections", { "is_visible": "eq.true", order: "sort_order.asc" }),
     selectRows("awards", { "is_visible": "eq.true" }),
     selectRows("activities", { "is_visible": "eq.true" }),
     selectRows("categories", { "content_type": "eq.award", "is_visible": "eq.true", order: "sort_order.asc" }),
     selectRows("categories", { "content_type": "eq.activity", "is_visible": "eq.true", order: "sort_order.asc" })
   ]);
-  const profile = profiles[0] || null;
+  const profile = profiles;
   visibleAwards.sort(sortByDateDesc);
   visibleActivities.sort(sortByDateDesc);
   renderProfileSummary(profile, visibleSections);
@@ -405,4 +495,5 @@ async function loadContent() {
   setStatus("");
 }
 
+loadSidebarProfile();
 loadContent().catch((error) => setStatus(error.message || "Supabase 请求失败，请检查配置和 RLS 策略。", "error"));

@@ -7,6 +7,8 @@ import {
 
 const app = document.querySelector("[data-admin-app]");
 if (app) {
+  let statusFadeTimer;
+  let statusHideTimer;
   const state = {
     tab: "profile",
     editing: {},
@@ -20,9 +22,23 @@ if (app) {
   const status = (message, type = "info") => {
     const node = document.querySelector("[data-admin-status]");
     if (!node) return;
+    window.clearTimeout(statusFadeTimer);
+    window.clearTimeout(statusHideTimer);
+    node.classList.remove("is-leaving");
+    if (!message) {
+      node.hidden = true;
+      return;
+    }
+    if (node.parentElement !== document.body) document.body.append(node);
     node.textContent = message;
-    node.className = `db-content-status db-admin-${type}`;
-    node.hidden = !message;
+    node.className = `db-content-status db-admin-toast db-admin-${type}`;
+    node.setAttribute("role", type === "error" ? "alert" : "status");
+    node.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    node.hidden = false;
+    if (type === "success") {
+      statusFadeTimer = window.setTimeout(() => node.classList.add("is-leaving"), 2300);
+      statusHideTimer = window.setTimeout(() => { node.hidden = true; }, 2650);
+    }
   };
 
   const field = (label, name, value = "", type = "text", extra = "") => `
@@ -62,15 +78,22 @@ if (app) {
         <div class="db-form-grid">
           ${field("姓名", "name", siteProfile.name || "", "text", "required")}
           ${field("英文名", "english_name", siteProfile.english_name || "")}
-          ${field("学校", "school", siteProfile.school || "")}
+          ${field("学校 / 机构（基本资料和左侧栏）", "school", siteProfile.school || "")}
           ${field("年级", "grade", siteProfile.grade || "")}
           ${field("班级", "class_name", siteProfile.class_name || "")}
-          ${field("所在地", "location", siteProfile.location || "")}
-          ${field("邮箱", "email", siteProfile.email || "", "email")}
+          ${field("所在地（基本资料和左侧栏）", "location", siteProfile.location || "")}
+          ${field("邮箱（基本资料和左侧栏）", "email", siteProfile.email || "", "email")}
           ${field("头像地址（支持站内路径或完整网址）", "avatar_url", siteProfile.avatar_url || "", "text", "placeholder=\"/images/portrait.png 或 https://...\"")}
           ${field("一句话简介", "short_tagline", siteProfile.short_tagline || "")}
           ${field("生日显示", "birthday_label", siteProfile.birthday_label || "")}
           ${field("概览个人描述数量（0 为全部）", "overview_profile_sections_limit", siteProfile.overview_profile_sections_limit ?? 3, "number", "required min=\"0\" max=\"50\" step=\"1\"")}
+          <h3 class="db-form-section-title db-field-full">左侧栏</h3>
+          ${field("显示名称", "sidebar_name", siteProfile.sidebar_name || "")}
+          ${field("侧栏头像（支持站内路径或完整网址）", "sidebar_avatar_url", siteProfile.sidebar_avatar_url || "/images/sidebar-avatar.png", "text", "placeholder=\"/images/sidebar-avatar.png 或 https://...\"")}
+          ${field("个性签名", "sidebar_pronouns", siteProfile.sidebar_pronouns || "")}
+          ${field("个人网站", "sidebar_website_url", siteProfile.sidebar_website_url || "", "text", "placeholder=\"https://example.com\"")}
+          ${field("GitHub 个人主页", "sidebar_github_url", siteProfile.sidebar_github_url || "", "text", "placeholder=\"https://github.com/用户名\" ")}
+          ${textarea("侧栏简介", "sidebar_bio", siteProfile.sidebar_bio || "")}
           ${textarea("SEO 描述", "seo_description", siteProfile.seo_description || "")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存基本资料</button></div>
