@@ -55,20 +55,26 @@
 }
 .db-site-meta { color: var(--global-text-color-light); font-size: .82rem; }
 .db-language-toggle {
-  min-height: 2.35rem;
-  padding: .35rem .65rem;
-  border: 1px solid var(--global-border-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .28rem;
+  min-width: 2.35rem;
+  min-height: 2.5rem;
+  padding: .25rem .42rem;
+  border: 0;
   border-radius: 999px;
   color: var(--global-masthead-link-color);
   background: transparent;
   font: inherit;
   font-size: .78rem;
   font-weight: 700;
-  letter-spacing: .04em;
   cursor: pointer;
 }
 .db-language-toggle:hover,
-.db-language-toggle:focus-visible { color: var(--global-link-color); border-color: var(--global-link-color); outline: 0; }
+.db-language-toggle:focus-visible { color: var(--global-link-color); background: var(--global-border-color); outline: 0; }
+.db-language-toggle i { font-size: 1.05rem; line-height: 1; }
+.db-language-toggle span { line-height: 1; }
 
 /* Keep the theme choice explicit while preserving the compact masthead. */
 #theme-menu { position: relative; }

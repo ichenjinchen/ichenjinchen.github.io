@@ -189,7 +189,9 @@
   const setLanguageLabel = () => {
     const button = document.querySelector("[data-language-toggle]");
     if (!button) return;
-    button.textContent = text("languageName");
+    const label = button.querySelector("[data-language-toggle-label]");
+    if (label) label.textContent = text("languageName");
+    else button.textContent = text("languageName");
     button.title = text("languageSwitch");
     button.setAttribute("aria-label", text("languageSwitch"));
   };
