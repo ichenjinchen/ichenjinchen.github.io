@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const tables = document.querySelectorAll("table");
+    const tables = document.querySelectorAll("table.awards-table");
 
     tables.forEach(table => {
         const headers = table.querySelectorAll("th");

@@ -1,37 +1,19 @@
-/* 排序图标 */
-th {
+/* Keep sorting on the legacy awards fallback, without adding arrows to other tables. */
+.awards-table th {
     cursor: pointer;
     user-select: none;
     position: relative;
 }
 
-th::after {
-    content: " ↕";
-    font-size: 12px;
-    color: #888;
-    margin-left: 5px;
-}
-
-th.asc::after {
-    content: " ↑";
-    color: #222;
-}
-
-th.desc::after {
-    content: " ↓";
-    color: #222;
-}
-
-/* 自动行号 */
-table {
+.awards-table {
     counter-reset: rowNum;
 }
 
-tbody tr {
+.awards-table tbody tr {
     counter-increment: rowNum;
 }
 
-tbody td:first-child::before {
+.awards-table tbody td:first-child::before {
     content: counter(rowNum);
     margin-right: 10px;
     color: #2692ea;

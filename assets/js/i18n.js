@@ -25,7 +25,7 @@
       email: "邮箱",
       siteUpdated: "网站最后更新",
       version: "版本",
-      releaseDate: "发布日期",
+      releaseDate: "发布时间",
       overview: "个人概览",
       featuredResults: "精选成果",
       importantHonors: "重要荣誉",
@@ -97,7 +97,7 @@
       email: "Email",
       siteUpdated: "Site last updated",
       version: "Version",
-      releaseDate: "Release date",
+      releaseDate: "Released",
       overview: "Overview",
       featuredResults: "Featured results",
       importantHonors: "Featured honors",
@@ -238,8 +238,8 @@
       const version = meta.dataset.version || "";
       const releaseDate = meta.dataset.releaseDate || "";
       meta.textContent = currentLanguage === "en"
-        ? `Version ${version} · Release date ${releaseDate}`
-        : `版本 ${version} · 发布日期 ${releaseDate}`;
+        ? `Version ${version} · Released ${releaseDate}`
+        : `版本 ${version} · 发布时间 ${releaseDate}`;
     }
     const updated = document.querySelector("[data-site-updated]");
     if (updated) updated.textContent = `${text("siteUpdated")} ${updated.dataset.date || ""}`;
@@ -265,9 +265,11 @@
   };
 
   const init = () => {
-    document.querySelector("[data-language-toggle]")?.addEventListener("click", () => {
+    document.querySelector("[data-language-toggle]")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       setLanguage(currentLanguage === "zh" ? "en" : "zh");
-    });
+    }, true);
     applyStaticTranslations();
     window.dispatchEvent(new CustomEvent("site-language-ready", { detail: { language: currentLanguage } }));
   };
