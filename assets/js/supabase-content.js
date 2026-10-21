@@ -293,6 +293,18 @@ function renderProfileSummary(profile, sections = []) {
       <img class="db-overview-feature-image" src="${escapeHtml(overviewImage)}" alt="${escapeHtml(text("guitarAlt", "弹吉他"))}">
     </div>
   `;
+  const image = target.querySelector(".db-overview-feature-image");
+  image?.addEventListener("click", () => {
+    const overlay = document.createElement("div");
+    overlay.className = "db-image-lightbox";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-label", image.alt || text("guitarAlt", "弹吉他"));
+    overlay.innerHTML = `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}">`;
+    const close = () => overlay.remove();
+    overlay.addEventListener("click", close);
+    overlay.querySelector("img")?.addEventListener("click", (event) => event.stopPropagation());
+    document.body.appendChild(overlay);
+  });
   target.hidden = false;
 }
 
@@ -328,7 +340,7 @@ function categoryHref(category) {
     programming: "/programming/",
     "arts-and-well-rounded": "/comprehensive/"
   };
-  return hrefs[category?.slug] || (category?.slug ? `/cv/?category=${encodeURIComponent(category.slug)}` : "/cv/");
+  return hrefs[category?.slug] || (category?.slug ? `/honors/?category=${encodeURIComponent(category.slug)}` : "/honors/");
 }
 
 function categoryLabel(category, activities = false) {
@@ -386,7 +398,7 @@ function renderFeaturedAwards(categories, awards) {
   const categoryById = new Map(categories.map((category) => [category.id, category]));
   if (!featured.length) return;
   target.innerHTML = `
-    <div class="db-section-heading"><div><p class="db-overview-eyebrow">${escapeHtml(text("featuredResults"))}</p><h2>${escapeHtml(text("importantHonors"))}</h2></div><a class="db-text-link" href="${target.dataset.allHref || "/cv/"}">${escapeHtml(text("viewAllHonors"))}</a></div>
+    <div class="db-section-heading"><div><p class="db-overview-eyebrow">${escapeHtml(text("featuredResults"))}</p><h2>${escapeHtml(text("importantHonors"))}</h2></div><a class="db-text-link" href="${target.dataset.allHref || "/honors/"}">${escapeHtml(text("viewAllHonors"))}</a></div>
     <div class="db-feature-grid">${featured.map((row) => awardCard(row, categoryById.get(row.category_id))).join("")}</div>
   `;
   target.hidden = false;
@@ -417,15 +429,18 @@ function renderCategoryNav(categories, activities = false, rows = []) {
     "arts-and-well-rounded": "/comprehensive/"
   };
   const selectedSlug = page?.dataset.categorySlug || new URLSearchParams(window.location.search).get("category") || "";
-  const allHref = activities ? "/activities/" : "/cv/";
+  const allHref = activities ? "/activities/" : "/honors/";
   const typedCategories = categories.filter((category) => category.content_type === type);
   const visibleCategories = rows.length
     ? groupedCategories(typedCategories, rows).map(({ category }) => category)
     : typedCategories;
+  const counts = new Map();
+  rows.forEach((row) => counts.set(row.category_id, (counts.get(row.category_id) || 0) + 1));
+  const countLabel = (count) => currentLanguage() === "en" ? count + " items" : count + "项";
   const categoryLinks = visibleCategories.map((category) => `
-    <a class="db-category-link ${category.slug === selectedSlug ? "is-active" : ""}" href="${hrefs[category.slug] || `/cv/?category=${encodeURIComponent(category.slug)}`}" data-category-slug="${escapeHtml(category.slug)}">${escapeHtml(categoryLabel(category, activities))}</a>
+    <a class="db-category-link ${category.slug === selectedSlug ? "is-active" : ""}" href="${hrefs[category.slug] || `/honors/?category=${encodeURIComponent(category.slug)}`}" data-category-slug="${escapeHtml(category.slug)}"><span>${escapeHtml(categoryLabel(category, activities))}</span><small>${escapeHtml(countLabel(counts.get(category.id) || 0))}</small></a>
   `).join("");
-  target.innerHTML = `<a class="db-category-link ${selectedSlug ? "" : "is-active"}" href="${allHref}">${escapeHtml(text("all"))}</a>${categoryLinks}`;
+  target.innerHTML = `<a class="db-category-link ${selectedSlug ? "" : "is-active"}" href="${allHref}"><span>${escapeHtml(text("all"))}</span><small>${escapeHtml(countLabel(rows.length))}</small></a>${categoryLinks}`;
 }
 
 function renderAwards(categories, awards) {
@@ -439,7 +454,7 @@ function renderAwards(categories, awards) {
   if (!selectedAwards.length) return;
   target.innerHTML = groupedCategories(selectedCategories, selectedAwards).map(({ category, rows }) => `
     <section class="db-category ${categoryClass(category)}">
-      <div class="db-category-heading"><h2>${escapeHtml(categoryLabel(category))}</h2></div>
+      <div class="db-category-heading"><h2>${escapeHtml(categoryLabel(category))}<small>${escapeHtml(currentLanguage() === "en" ? rows.length + " items" : rows.length + "项")}</small></h2></div>
       ${localized(category, "description") ? `<p class="db-category-description">${escapeHtml(localized(category, "description"))}</p>` : ""}
       <table class="db-awards-table">
         <thead><tr><th>${escapeHtml(text("date"))}</th><th>${escapeHtml(text("event"))}</th><th>${escapeHtml(text("award"))}</th><th>${escapeHtml(text("level"))}</th></tr></thead>
@@ -464,7 +479,7 @@ function renderActivities(categories, activities) {
   if (!target || !activities.length) return;
   target.innerHTML = groupedCategories(categories, activities).map(({ category, rows }) => `
     <section class="db-category ${categoryClass(category)}">
-      <div class="db-category-heading"><h2>${escapeHtml(categoryLabel(category, true))}</h2></div>
+      <div class="db-category-heading"><h2>${escapeHtml(categoryLabel(category, true))}<small>${escapeHtml(currentLanguage() === "en" ? rows.length + " items" : rows.length + "项")}</small></h2></div>
       <div class="timeline-container">${rows.sort(sortRows).map((row) => `
         <article class="timeline-item ${row.is_pinned ? "db-activity-pinned" : ""}">
           <div class="timeline-time">${escapeHtml(row.display_date)}</div>

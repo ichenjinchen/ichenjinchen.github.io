@@ -1,9 +1,10 @@
 ---
 layout: archive
 title: "荣誉总览"
-permalink: /cv/
+permalink: /honors/
 author_profile: true
 redirect_from:
+  - /cv/
   - /resume
 ---
 

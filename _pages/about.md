@@ -42,7 +42,7 @@ His family values balanced development across academics, physical education, art
   <a class="btn" href="/school/" data-i18n-zh="查看完整成长档案" data-i18n-en="View complete profile">查看完整成长档案</a>
 </div>
 
-<section class="db-overview-section" data-featured-awards data-featured-limit="9" data-all-href="/cv/" hidden></section>
+<section class="db-overview-section" data-featured-awards data-featured-limit="9" data-all-href="/honors/" hidden></section>
 <section class="db-overview-section" data-featured-activities data-featured-limit="3" data-all-href="/activities/" hidden></section>
 
 </div>

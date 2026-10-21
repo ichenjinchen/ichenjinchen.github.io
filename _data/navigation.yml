@@ -28,7 +28,7 @@ main:
     i18n_key: navOverview
 
   - title: "荣誉"
-    url: /cv/
+    url: /honors/
     i18n_key: navHonors
 
   - title: "研学"

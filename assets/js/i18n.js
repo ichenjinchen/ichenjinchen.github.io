@@ -150,6 +150,7 @@
 
   const pageTranslations = {
     "/": { title: ["基本信息", "Profile"], intro: ["", ""] },
+    "/honors/": { title: ["荣誉总览", "Honors"], intro: ["", ""] },
     "/cv/": { title: ["荣誉总览", "Honors"], intro: ["", ""] },
     "/presentation/": { title: ["简历演示", "Resume presentation"], intro: ["", ""] },
     "/activities/": { title: ["研学实践", "Study & practice"], intro: ["科技、校园与社会实践的经历记录。", "Experiences in technology, school and community activities."] },
