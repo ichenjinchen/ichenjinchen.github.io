@@ -50,11 +50,53 @@ async function selectRows(table, filters = {}) {
   return response.json();
 }
 
+// 只取“已发布”的内容。迁移 SQL 尚未执行时（is_published 列还不存在）自动回退，
+// 保证老库也能正常渲染，不会因为一次前端升级把站点弄挂。
+async function selectPublished(table, filters = {}) {
+  try {
+    return await selectRows(table, { ...filters, is_published: "eq.true" });
+  } catch (error) {
+    if (/is_published/i.test(String(error?.message || ""))) return selectRows(table, filters);
+    throw error;
+  }
+}
+
 function getSiteProfile() {
   if (!siteProfileRequest) {
     siteProfileRequest = selectRows("site_profile", { "id": "eq.1", limit: "1" }).then((rows) => rows[0] || null);
   }
   return siteProfileRequest;
+}
+
+// 存储桶里存的是相对路径（如 awards/202611/xxx.webp），历史数据里可能是完整网址或站内路径。
+// 三种情况都统一转成可直接渲染的地址。
+function assetUrl(value) {
+  const path = String(value || "").trim();
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith("/") && !path.startsWith("//")) return path;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return "";
+  const bucket = "resume-assets";
+  const relative = path.startsWith(`${bucket}/`) ? path.slice(bucket.length + 1) : path;
+  return `${config.projectUrl.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/${relative.split("/").map(encodeURIComponent).join("/")}`;
+}
+
+const isPdfPath = (url) => /\.pdf(?:$|[?#])/i.test(String(url || ""));
+
+function proofItems(row) {
+  const stored = Array.isArray(row.certificate_paths) ? row.certificate_paths : [];
+  const legacy = String(row.certificate_url || "").trim();
+  return [...stored, ...(legacy ? [legacy] : [])].map(assetUrl).filter(Boolean);
+}
+
+function proofGallery(row) {
+  const items = proofItems(row);
+  if (!items.length) return "";
+  const title = localized(row, "title");
+  return `
+        <div class="db-award-proofs">${items.map((url, index) => isPdfPath(url)
+    ? `<a class="db-award-proof db-award-proof-file" href="${escapeHtml(url)}" target="_blank" rel="noopener">PDF 证明</a>`
+    : `<a class="db-award-proof" href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="${escapeHtml(title ? `${title} ` : "")}证明 ${index + 1}" loading="lazy" decoding="async"></a>`).join("")}</div>`;
 }
 
 function sidebarAvatarUrl(value) {
@@ -378,7 +420,7 @@ function activityCard(row, category) {
       <p class="db-feature-card-date">${escapeHtml(row.display_date)}</p>
       <h3>${escapeHtml(localized(row, "title"))}</h3>
       ${localized(row, "description") ? `<div class="db-feature-card-description">${escapeHtml(localized(row, "description"))}</div>` : ""}
-      ${row.image_paths?.[0] ? `<img class="db-feature-card-image" src="${escapeHtml(row.image_paths[0])}" alt="">` : ""}
+      ${row.image_paths?.[0] ? `<img class="db-feature-card-image" src="${escapeHtml(assetUrl(row.image_paths[0]))}" alt="" loading="lazy" decoding="async">` : ""}
     </a>
   `;
 }
@@ -461,7 +503,7 @@ function renderAwards(categories, awards) {
         <tbody>${rows.sort(sortRows).map((row) => `
           <tr class="${row.is_pinned ? "db-award-pinned" : ""}">
             <td>${escapeHtml(row.display_date)}</td>
-            <td>${escapeHtml(localized(row, "title"))}${row.is_offline ? `<span class="db-offline-label">${escapeHtml(text("offline"))}</span>` : ""}${localized(row, "description") ? `<div class="db-award-description">${escapeHtml(localized(row, "description"))}</div>` : ""}</td>
+            <td>${escapeHtml(localized(row, "title"))}${row.is_offline ? `<span class="db-offline-label">${escapeHtml(text("offline"))}</span>` : ""}${localized(row, "description") ? `<div class="db-award-description">${escapeHtml(localized(row, "description"))}</div>` : ""}${proofGallery(row)}</td>
             <td>${escapeHtml(localized(row, "result"))}</td>
             <td>${escapeHtml(localized(row, "level"))}</td>
           </tr>
@@ -485,7 +527,7 @@ function renderActivities(categories, activities) {
           <div class="timeline-time">${escapeHtml(row.display_date)}</div>
           <div class="timeline-title">${escapeHtml(localized(row, "title"))}${row.is_offline ? `<span class="db-offline-label">${escapeHtml(text("offline"))}</span>` : ""}</div>
           ${localized(row, "description") ? `<div class="db-activity-description">${escapeHtml(localized(row, "description"))}</div>` : ""}
-          ${row.image_paths?.length ? `<div class="timeline-img-container">${row.image_paths.map((image) => `<img class="pub-img-content" src="${escapeHtml(image)}" alt="">`).join("")}</div>` : ""}
+          ${row.image_paths?.length ? `<div class="timeline-img-container">${row.image_paths.map((image) => `<img class="pub-img-content" src="${escapeHtml(assetUrl(image))}" alt="" loading="lazy" decoding="async">`).join("")}</div>` : ""}
         </article>
       `).join("")}</div>
     </section>
@@ -585,8 +627,8 @@ async function loadContent() {
   const [profiles, visibleSections, visibleAwards, visibleActivities, awardCategories, activityCategories] = await Promise.all([
     getSiteProfile(),
     selectRows("profile_sections", { "is_visible": "eq.true", order: "sort_order.asc" }),
-    selectRows("awards", { "is_visible": "eq.true" }),
-    selectRows("activities", { "is_visible": "eq.true" }),
+    selectPublished("awards", { "is_visible": "eq.true" }),
+    selectPublished("activities", { "is_visible": "eq.true" }),
     selectRows("categories", { "content_type": "eq.award", "is_visible": "eq.true", order: "sort_order.asc" }),
     selectRows("categories", { "content_type": "eq.activity", "is_visible": "eq.true", order: "sort_order.asc" })
   ]);

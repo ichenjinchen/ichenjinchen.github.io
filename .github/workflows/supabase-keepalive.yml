@@ -1,0 +1,43 @@
+name: Supabase keep-alive
+
+# 目的：免费版 Supabase 项目只要 7 天内没有数据库活动就会被自动暂停。
+# 站点平时是只读的，没人访问时数据库没有任何写入，很容易被判定为不活跃。
+# 这里每天打一次 REST 请求（读 site_profile），保持项目处于活跃状态。
+
+on:
+  schedule:
+    # 每天 01:00 UTC（北京时间 09:00）
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: https://cuvdudkqezbaxvbohhtv.supabase.co
+      # publishable key，站点的 _config.yml 里本来就公开携带，不是密钥
+      SUPABASE_KEY: sb_publishable_Fwm_UFnzWOs1hiGA7QlUzQ_QL4te20P
+    steps:
+      - name: Ping REST endpoint
+        run: |
+          set -euo pipefail
+          endpoint="$SUPABASE_URL/rest/v1/site_profile?select=id,updated_at&limit=1"
+          for attempt in 1 2 3; do
+            code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" --max-time 30 \
+              "$endpoint" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" || true)
+            echo "attempt $attempt -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              cat /tmp/resp.json
+              echo "keep-alive ok"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "Supabase 未响应，可能又被暂停了，请去 Dashboard 检查" >&2
+          exit 1

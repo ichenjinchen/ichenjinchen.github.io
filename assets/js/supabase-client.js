@@ -10,6 +10,7 @@ const config = {
   publishableKey: inlineConfig.publishableKey || metaConfig.publishableKey
 };
 export const isSupabaseConfigured = Boolean(config.projectUrl && config.publishableKey);
+export const supabaseProjectUrl = config.projectUrl.replace(/\/$/, "");
 export const supabase = isSupabaseConfigured
   ? createClient(config.projectUrl, config.publishableKey)
   : null;

@@ -2,8 +2,24 @@ import {
   escapeHtml,
   formatSupabaseError,
   isSupabaseConfigured,
-  supabase
+  supabase,
+  supabaseProjectUrl
 } from "./supabase-client.js";
+
+const BUCKET = "resume-assets";
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const isPdfPath = (value) => /\.pdf(?:$|[?#])/i.test(String(value || ""));
+
+// 库里存相对路径（awards/202611/xxx.webp），渲染时要拼成存储桶的公开地址；
+// 历史数据里的完整网址、站内绝对路径原样使用。
+function assetUrl(value) {
+  const path = String(value || "").trim();
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith("/") && !path.startsWith("//")) return path;
+  const relative = path.startsWith(`${BUCKET}/`) ? path.slice(BUCKET.length + 1) : path;
+  return `${supabaseProjectUrl}/storage/v1/object/public/${BUCKET}/${relative.split("/").map(encodeURIComponent).join("/")}`;
+}
 
 const app = document.querySelector("[data-admin-app]");
 if (app) {
@@ -53,6 +69,102 @@ if (app) {
     <label><span>${label}</span><input name="${name}" type="checkbox" ${checked ? "checked" : ""}></label>
   `;
 
+  // 文件上传区：真正的值仍然放在隐藏的 textarea 里（每行一个路径），
+  // 这样表单提交和原有的 saveRecord 逻辑都不用改。
+  function uploader({ name, label, values = [], kind, accept = "image/*", hint = "" }) {
+    return `
+      <div class="db-upload db-field-full" data-uploader data-kind="${kind}">
+        <div class="db-upload-head"><span>${label}</span><small>${hint}</small></div>
+        <label class="db-upload-drop">
+          <input type="file" accept="${accept}" multiple data-upload-input>
+          <span>选择文件，或把文件拖到这里</span>
+        </label>
+        <div class="db-upload-thumbs" data-upload-thumbs></div>
+        <textarea name="${name}" data-upload-value hidden>${escapeHtml(values.join("\n"))}</textarea>
+      </div>
+    `;
+  }
+
+  const uploaderValues = (node) => node.querySelector("[data-upload-value]").value
+    .split("\n").map((value) => value.trim()).filter(Boolean);
+
+  function refreshUploader(node) {
+    const thumbs = node.querySelector("[data-upload-thumbs]");
+    if (!thumbs) return;
+    const values = uploaderValues(node);
+    thumbs.innerHTML = values.length
+      ? values.map((value, index) => `
+          <figure class="db-upload-thumb">
+            <a href="${escapeHtml(assetUrl(value))}" target="_blank" rel="noopener">${isPdfPath(value)
+        ? '<span class="db-upload-file">PDF</span>'
+        : `<img src="${escapeHtml(assetUrl(value))}" alt="" loading="lazy">`}</a>
+            <button type="button" class="db-upload-remove" data-remove-asset="${index}" title="移除">×</button>
+          </figure>`).join("")
+      : '<span class="db-upload-empty">还没有文件</span>';
+  }
+
+  function refreshUploaders(root = app) {
+    root.querySelectorAll("[data-uploader]").forEach(refreshUploader);
+  }
+
+  function setUploaderValues(node, values) {
+    node.querySelector("[data-upload-value]").value = values.join("\n");
+    refreshUploader(node);
+  }
+
+  // 手机拍的证书照动辄 3–5MB，压到长边 1600 的 WebP，站点加载才不难受。
+  async function prepareFile(file) {
+    const originalExt = (file.name.split(".").pop() || "bin").toLowerCase();
+    if (!/^image\//.test(file.type) || file.type === "image/gif") {
+      return { blob: file, ext: originalExt, type: file.type || "application/octet-stream" };
+    }
+    const bitmap = await createImageBitmap(file).catch(() => null);
+    if (!bitmap) return { blob: file, ext: originalExt, type: file.type };
+    const max = 1600;
+    const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
+    if (!blob) return { blob: file, ext: originalExt, type: file.type };
+    return { blob, ext: "webp", type: "image/webp" };
+  }
+
+  async function uploadAsset(kind, file) {
+    if (file.size > 50 * MAX_UPLOAD_BYTES) throw new Error(`${file.name} 太大（超过 50MB），请先裁切。`);
+    const prepared = await prepareFile(file);
+    if (prepared.blob.size > MAX_UPLOAD_BYTES) throw new Error(`${file.name} 压缩后仍有 ${(prepared.blob.size / 1048576).toFixed(1)}MB，超过 10MB 上限。`);
+    const month = new Date().toISOString().slice(0, 7);
+    const id = (crypto.randomUUID?.() || `${Date.now()}${Math.random().toString(16).slice(2, 8)}`)
+      .replace(/-/g, "").slice(0, 16);
+    const path = `${kind || "misc"}/${month}/${id}.${prepared.ext}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, prepared.blob, {
+      cacheControl: "31536000",
+      contentType: prepared.type,
+      upsert: false
+    });
+    if (error) throw error;
+    return path;
+  }
+
+  async function handleUploadInput(input) {
+    const node = input.closest("[data-uploader]");
+    const files = [...(input.files || [])];
+    input.value = "";
+    if (!node || !files.length) return;
+    status(`正在上传 ${files.length} 个文件……`, "info");
+    try {
+      const uploaded = [];
+      for (const file of files) uploaded.push(await uploadAsset(node.dataset.kind, file));
+      setUploaderValues(node, [...uploaderValues(node), ...uploaded]);
+      status("上传完成，记得点保存生效。", "success");
+    } catch (error) {
+      status(formatSupabaseError(error), "error");
+    }
+  }
+
   function categoryOptions(type, selected = "") {
     return state.categories
       .filter((category) => category.content_type === type)
@@ -63,6 +175,18 @@ if (app) {
 
   function categoryName(id) {
     return state.categories.find((category) => category.id === id)?.name || "未分类";
+  }
+
+  function proofCount(row) {
+    const count = (Array.isArray(row.certificate_paths) ? row.certificate_paths.length : 0)
+      + (String(row.certificate_url || "").trim() ? 1 : 0);
+    return count ? `${count} 张` : "";
+  }
+
+  function publishBadge(row) {
+    return row.is_published === false
+      ? '<span class="db-admin-badge is-draft">草稿</span>'
+      : '<span class="db-admin-badge">已发布</span>';
   }
 
   function editorHeader(type, label) {
@@ -171,14 +295,25 @@ if (app) {
           ${field("普通排序", "sort_order", record.sort_order ?? 1000, "number")}
           ${checkbox("置顶", "is_pinned", record.is_pinned)}
           ${checkbox("线下", "is_offline", record.is_offline)}
-          ${checkbox("显示", "is_visible", record.is_visible !== false)}
+          ${checkbox("发布到站点", "is_published", record.is_published !== false)}
+          ${checkbox("在列表显示", "is_visible", record.is_visible !== false)}
           ${textarea("补充描述", "description", record.description || "")}
-          ${textarea("补充描述（英文）", "description_en", record.description_en || "")}
+          ${textarea("补充描述（英文，留空自动用中文）", "description_en", record.description_en || "")}
+          <h3 class="db-form-section-title db-field-full">获奖证明</h3>
+          ${uploader({
+      name: "certificate_paths",
+      label: "证书 / 奖状",
+      kind: "awards",
+      values: record.certificate_paths || [],
+      accept: "image/*,application/pdf",
+      hint: "图片自动压缩到长边 1600、转 WebP；也支持 PDF；单文件 ≤ 10MB，可一次传多张"
+    })}
+          ${field("旧版证书链接（可选，仅一张）", "certificate_url", record.certificate_url || "", "text", "placeholder=\"https://...\"")}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存</button><button class="btn btn--inverse" type="button" data-cancel="award">取消</button></div>
       </form>
-      <table class="db-admin-table"><thead><tr><th>日期</th><th>名称</th><th>分类</th><th>置顶</th><th>线下</th><th>操作</th></tr></thead><tbody>
-        ${state.awards.sort((a, b) => (b.is_pinned - a.is_pinned) || String(b.sort_date || "").localeCompare(String(a.sort_date || ""))).map((row) => `<tr><td>${escapeHtml(row.display_date)}</td><td>${escapeHtml(row.title)}<br><small>${escapeHtml(row.result)}</small></td><td>${escapeHtml(categoryName(row.category_id))}</td><td>${row.is_pinned ? "是" : "否"}</td><td>${row.is_offline ? "是" : "否"}</td><td class="db-row-actions"><button class="btn btn--small" type="button" data-edit="award" data-id="${escapeHtml(row.id)}">编辑</button> <button class="btn btn--small" type="button" data-toggle-pin="award" data-id="${escapeHtml(row.id)}">${row.is_pinned ? "取消置顶" : "置顶"}</button> <button class="btn btn--small" type="button" data-delete="award" data-id="${escapeHtml(row.id)}">删除</button></td></tr>`).join("")}
+      <table class="db-admin-table"><thead><tr><th>日期</th><th>名称</th><th>分类</th><th>证明</th><th>置顶</th><th>线下</th><th>状态</th><th>操作</th></tr></thead><tbody>
+        ${state.awards.sort((a, b) => (b.is_pinned - a.is_pinned) || String(b.sort_date || "").localeCompare(String(a.sort_date || ""))).map((row) => `<tr><td>${escapeHtml(row.display_date)}</td><td>${escapeHtml(row.title)}<br><small>${escapeHtml(row.result)}</small></td><td>${escapeHtml(categoryName(row.category_id))}</td><td>${proofCount(row) || "—"}</td><td>${row.is_pinned ? "是" : "否"}</td><td>${row.is_offline ? "是" : "否"}</td><td>${publishBadge(row)}</td><td class="db-row-actions"><button class="btn btn--small" type="button" data-edit="award" data-id="${escapeHtml(row.id)}">编辑</button> <button class="btn btn--small" type="button" data-toggle-pin="award" data-id="${escapeHtml(row.id)}">${row.is_pinned ? "取消置顶" : "置顶"}</button> <button class="btn btn--small" type="button" data-delete="award" data-id="${escapeHtml(row.id)}">删除</button></td></tr>`).join("")}
       </tbody></table>
     `;
   }
@@ -198,15 +333,23 @@ if (app) {
           ${field("普通排序", "sort_order", record.sort_order ?? 1000, "number")}
           ${checkbox("置顶", "is_pinned", record.is_pinned)}
           ${checkbox("线下", "is_offline", record.is_offline)}
-          ${checkbox("显示", "is_visible", record.is_visible !== false)}
+          ${checkbox("发布到站点", "is_published", record.is_published !== false)}
+          ${checkbox("在列表显示", "is_visible", record.is_visible !== false)}
           ${textarea("活动描述", "description", record.description || "")}
-          ${textarea("活动描述（英文）", "description_en", record.description_en || "")}
-          ${textarea("图片地址（每行一个）", "image_paths", (record.image_paths || []).join("\n"))}
+          ${textarea("活动描述（英文，留空自动用中文）", "description_en", record.description_en || "")}
+          ${uploader({
+      name: "image_paths",
+      label: "活动照片",
+      kind: "activities",
+      values: record.image_paths || [],
+      accept: "image/*",
+      hint: "自动压缩到长边 1600、转 WebP；单文件 ≤ 10MB，可一次传多张"
+    })}
         </div>
         <div class="db-form-actions"><button class="btn btn--primary" type="submit">保存</button><button class="btn btn--inverse" type="button" data-cancel="activity">取消</button></div>
       </form>
-      <table class="db-admin-table"><thead><tr><th>日期</th><th>活动</th><th>分类</th><th>置顶</th><th>线下</th><th>操作</th></tr></thead><tbody>
-        ${state.activities.sort((a, b) => (b.is_pinned - a.is_pinned) || String(b.sort_date || "").localeCompare(String(a.sort_date || ""))).map((row) => `<tr><td>${escapeHtml(row.display_date)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(categoryName(row.category_id))}</td><td>${row.is_pinned ? "是" : "否"}</td><td>${row.is_offline ? "是" : "否"}</td><td class="db-row-actions"><button class="btn btn--small" type="button" data-edit="activity" data-id="${escapeHtml(row.id)}">编辑</button> <button class="btn btn--small" type="button" data-toggle-pin="activity" data-id="${escapeHtml(row.id)}">${row.is_pinned ? "取消置顶" : "置顶"}</button> <button class="btn btn--small" type="button" data-delete="activity" data-id="${escapeHtml(row.id)}">删除</button></td></tr>`).join("")}
+      <table class="db-admin-table"><thead><tr><th>日期</th><th>活动</th><th>分类</th><th>照片</th><th>置顶</th><th>线下</th><th>状态</th><th>操作</th></tr></thead><tbody>
+        ${state.activities.sort((a, b) => (b.is_pinned - a.is_pinned) || String(b.sort_date || "").localeCompare(String(a.sort_date || ""))).map((row) => `<tr><td>${escapeHtml(row.display_date)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(categoryName(row.category_id))}</td><td>${(row.image_paths || []).length || "—"}</td><td>${row.is_pinned ? "是" : "否"}</td><td>${row.is_offline ? "是" : "否"}</td><td>${publishBadge(row)}</td><td class="db-row-actions"><button class="btn btn--small" type="button" data-edit="activity" data-id="${escapeHtml(row.id)}">编辑</button> <button class="btn btn--small" type="button" data-toggle-pin="activity" data-id="${escapeHtml(row.id)}">${row.is_pinned ? "取消置顶" : "置顶"}</button> <button class="btn btn--small" type="button" data-delete="activity" data-id="${escapeHtml(row.id)}">删除</button></td></tr>`).join("")}
       </tbody></table>
     `;
   }
@@ -222,6 +365,7 @@ if (app) {
       <section class="db-admin-panel" data-panel="activity" ${state.tab === "activity" ? "" : "hidden"}>${activityPanel()}</section>
       <section class="db-admin-panel" data-panel="category" ${state.tab === "category" ? "" : "hidden"}>${categoryPanel()}</section>
     `;
+    refreshUploaders();
   }
 
   async function loadData() {
@@ -289,6 +433,11 @@ if (app) {
     if (["award", "activity"].includes(type)) {
       payload.is_pinned = data.has("is_pinned");
       payload.is_offline = data.has("is_offline");
+      payload.is_published = data.has("is_published");
+    }
+    if (type === "award") {
+      payload.certificate_paths = (payload.certificate_paths || "")
+        .split("\n").map((value) => value.trim()).filter(Boolean);
     }
     ["sort_order", "pin_order"].forEach((key) => { if (key in payload) payload[key] = Number(payload[key] || 1000); });
     if ("overview_profile_sections_limit" in payload) {
@@ -359,6 +508,13 @@ if (app) {
         if (window.confirm("确定删除这条内容吗？")) await deleteRecord(target.dataset.delete, target.dataset.id);
       } else if (target.dataset.togglePin) {
         await togglePin(target.dataset.togglePin, target.dataset.id);
+      } else if (target.dataset.removeAsset !== undefined) {
+        const node = target.closest("[data-uploader]");
+        if (node) {
+          const index = Number(target.dataset.removeAsset);
+          setUploaderValues(node, uploaderValues(node).filter((_, i) => i !== index));
+          status("已移除，记得点保存。", "info");
+        }
       } else if (target.dataset.signout) {
         await supabase.auth.signOut();
         showLogin();
@@ -366,6 +522,33 @@ if (app) {
     } catch (error) {
       status(formatSupabaseError(error), "error");
     }
+  });
+
+  app.addEventListener("change", (event) => {
+    if (event.target.matches("[data-upload-input]")) handleUploadInput(event.target);
+  });
+
+  app.addEventListener("dragover", (event) => {
+    const drop = event.target.closest(".db-upload-drop");
+    if (!drop) return;
+    event.preventDefault();
+    drop.classList.add("is-dragging");
+  });
+
+  app.addEventListener("dragleave", (event) => {
+    const drop = event.target.closest(".db-upload-drop");
+    if (drop) drop.classList.remove("is-dragging");
+  });
+
+  app.addEventListener("drop", async (event) => {
+    const drop = event.target.closest(".db-upload-drop");
+    if (!drop) return;
+    event.preventDefault();
+    drop.classList.remove("is-dragging");
+    const input = drop.querySelector("[data-upload-input]");
+    if (!input || !event.dataTransfer?.files?.length) return;
+    input.files = event.dataTransfer.files;
+    await handleUploadInput(input);
   });
 
   app.addEventListener("submit", async (event) => {

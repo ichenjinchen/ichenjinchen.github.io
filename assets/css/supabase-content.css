@@ -845,3 +845,160 @@ html[data-theme="dark"] .db-admin-toast.db-admin-info::before { background: #77b
 @media (prefers-reduced-motion: reduce) {
   .db-admin-toast { transition: none; }
 }
+
+/* ---------- 后台：文件上传 ---------- */
+.db-upload {
+  margin: .25rem 0 .5rem;
+  padding: .9rem;
+  border: 1px solid #d9e1ec;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.db-upload-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .6rem;
+}
+
+.db-upload-head span { font-weight: 700; color: #263447; }
+.db-upload-head small { color: #66788f; font-weight: 400; }
+
+.db-upload-drop {
+  position: relative;
+  display: block;
+  padding: 1rem;
+  border: 1px dashed #a8bdd6;
+  border-radius: 8px;
+  background: #fff;
+  color: #42526b;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.db-upload-drop:hover,
+.db-upload-drop.is-dragging {
+  border-color: #2365ea;
+  background: #f0f6ff;
+}
+
+.db-upload-drop input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.db-upload-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-top: .7rem;
+}
+
+.db-upload-empty { color: #7b8b9f; font-size: .85rem; }
+
+.db-upload-thumb {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin: 0;
+  border: 1px solid #d9e1ec;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.db-upload-thumb a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.db-upload-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.db-upload-file {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #2365ea;
+  letter-spacing: .06em;
+}
+
+.db-upload-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(38, 52, 71, .72);
+  color: #fff;
+  font-size: .9rem;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.db-upload-remove:hover { background: #c03935; }
+
+.db-admin-badge {
+  display: inline-block;
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  background: #e6f4ec;
+  color: #16794c;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.db-admin-badge.is-draft {
+  background: #fdf2e2;
+  color: #9a6100;
+}
+
+/* ---------- 站点：获奖证明缩略图 ---------- */
+.db-award-proofs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: .5rem;
+}
+
+.db-award-proof {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid #d9e1ec;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.db-award-proof img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.db-award-proof-file {
+  width: auto;
+  padding: 0 .5rem;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #2365ea;
+  white-space: nowrap;
+}

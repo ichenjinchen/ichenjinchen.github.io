@@ -11,8 +11,9 @@
 5. 执行同目录下的 `migration_configurable_profile_sections_limit.sql`，增加概览个人描述显示数量配置。`0` 表示显示全部，`1–50` 表示最多显示对应数量。
 6. 执行同目录下的 `migration_sidebar_profile_fields.sql`，增加左侧栏名称、签名、简介、头像、个人网站和 GitHub 链接配置。
 7. 执行同目录下的 `migration_add_english_content.sql`，为个人资料、个人描述、分类、荣誉和活动增加可选英文栏位。留空的英文内容会自动显示中文。
-8. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
-9. 执行下面的核对查询：
+8. 执行同目录下的 `migration_proof_uploads.sql`，启用获奖证明 / 活动照片上传与草稿发布；这个脚本会自动创建 `resume-assets` 存储桶和访问策略。
+9. 打开同目录下的 `seed_content.sql`，复制全部内容到 SQL Editor，点击 **Run**。
+10. 执行下面的核对查询：
 
 ```sql
 select count(*) as profile_sections from public.profile_sections;
