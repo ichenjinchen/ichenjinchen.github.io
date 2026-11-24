@@ -1,0 +1,12 @@
+# 构建上下文排除项：这些内容不进镜像，构建更快
+.git
+.gitignore
+_site
+.sass-cache
+.jekyll-cache
+node_modules
+vendor
+.bundle
+local
+.DS_Store
+**/.DS_Store
