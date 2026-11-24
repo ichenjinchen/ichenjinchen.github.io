@@ -29,6 +29,17 @@ function renderAllContent() {
 
 window.addEventListener("site-language-change", renderAllContent);
 
+function levelClass(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  if (/国际|international/i.test(raw)) return "is-international";
+  if (/全国|national/i.test(raw)) return "is-national";
+  if (/区|district/i.test(raw)) return "is-district";
+  if (/市|city|municipal/i.test(raw)) return "is-city";
+  if (/校|school/i.test(raw)) return "is-school";
+  return "";
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -326,7 +337,7 @@ function renderProfileSummary(profile, sections = []) {
   target.innerHTML = `
     <div class="db-overview-identity">
       <div class="db-overview-identity-copy">
-        <p class="db-overview-eyebrow">${escapeHtml(text("overview"))}</p>
+        <p class="db-overview-eyebrow">PERSONAL PROFILE · 2026</p>
         <h1>${escapeHtml(displayName || "陈瑾辰")}</h1>
         ${profile.english_name && currentLanguage() !== "en" ? `<p class="db-overview-english">${escapeHtml(profile.english_name)}</p>` : ""}
         <p class="db-overview-meta">${escapeHtml([localized(profile, "school"), localized(profile, "grade"), localized(profile, "class_name")].filter(Boolean).join(" · "))}</p>
@@ -498,17 +509,19 @@ function renderAwards(categories, awards) {
     <section class="db-category ${categoryClass(category)}">
       <div class="db-category-heading"><h2>${escapeHtml(categoryLabel(category))}<small>${escapeHtml(currentLanguage() === "en" ? rows.length + " items" : rows.length + "项")}</small></h2></div>
       ${localized(category, "description") ? `<p class="db-category-description">${escapeHtml(localized(category, "description"))}</p>` : ""}
+      <div class="db-table-wrap">
       <table class="db-awards-table">
         <thead><tr><th>${escapeHtml(text("date"))}</th><th>${escapeHtml(text("event"))}</th><th>${escapeHtml(text("award"))}</th><th>${escapeHtml(text("level"))}</th></tr></thead>
-        <tbody>${rows.sort(sortRows).map((row) => `
+        <tbody>${rows.slice().sort(sortByDateDesc).map((row) => `
           <tr class="${row.is_pinned ? "db-award-pinned" : ""}">
             <td>${escapeHtml(row.display_date)}</td>
             <td>${escapeHtml(localized(row, "title"))}${row.is_offline ? `<span class="db-offline-label">${escapeHtml(text("offline"))}</span>` : ""}${localized(row, "description") ? `<div class="db-award-description">${escapeHtml(localized(row, "description"))}</div>` : ""}${proofGallery(row)}</td>
             <td>${escapeHtml(localized(row, "result"))}</td>
-            <td>${escapeHtml(localized(row, "level"))}</td>
+            <td>${localized(row, "level") ? `<span class="db-level ${levelClass(localized(row, "level"))}">${escapeHtml(localized(row, "level"))}</span>` : ""}</td>
           </tr>
         `).join("")}</tbody>
       </table>
+      </div>
     </section>
   `).join("");
   target.hidden = false;
@@ -522,7 +535,7 @@ function renderActivities(categories, activities) {
   target.innerHTML = groupedCategories(categories, activities).map(({ category, rows }) => `
     <section class="db-category ${categoryClass(category)}">
       <div class="db-category-heading"><h2>${escapeHtml(categoryLabel(category, true))}<small>${escapeHtml(currentLanguage() === "en" ? rows.length + " items" : rows.length + "项")}</small></h2></div>
-      <div class="timeline-container">${rows.sort(sortRows).map((row) => `
+      <div class="timeline-container">${rows.slice().sort(sortByDateDesc).map((row) => `
         <article class="timeline-item ${row.is_pinned ? "db-activity-pinned" : ""}">
           <div class="timeline-time">${escapeHtml(row.display_date)}</div>
           <div class="timeline-title">${escapeHtml(localized(row, "title"))}${row.is_offline ? `<span class="db-offline-label">${escapeHtml(text("offline"))}</span>` : ""}</div>
@@ -574,7 +587,7 @@ function renderPresentation(profile, sections, awards, activities, awardCategori
     : "热爱数学、编程与创造，学习自律、性格开朗，在竞赛、艺术与公益实践中持续成长。");
   const overviewTitle = text("aboutMe");
   const slides = [
-    { eyebrow: "PERSONAL PROFILE · 2026", title: displayName, body: "JASON CHEN", detailHref: "/", detailLabel: text("overview"), className: "db-presentation-cover", content: `<div class="db-presentation-cover-grid"><div><p>${escapeHtml(profileMeta)}</p><ul class="db-presentation-highlight-list">${awards.filter((row) => row.is_pinned).sort(sortRows).slice(0, 4).map(presentationCard).join("")}</ul></div><img class="db-presentation-avatar" src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(displayName)}"></div>` },
+    { eyebrow: "PERSONAL PROFILE · 2026", title: displayName, body: "JASON CHEN", detailHref: "/", detailLabel: text("overview"), className: "db-presentation-cover", content: `<div class="db-presentation-cover-grid"><div><p>${escapeHtml(profileMeta)}</p><ul class="db-presentation-highlight-list">${awards.filter((row) => row.is_pinned).sort(sortRows).slice(0, 4).map(presentationCard).join("")}</ul></div><img class="db-presentation-avatar" src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(displayName)}"></div><div class="db-presentation-cover-stats"><div><strong>${awards.length}</strong><span>${currentLanguage() === "en" ? "honors" : "项荣誉"}</span></div><div><strong>${activities.length}</strong><span>${currentLanguage() === "en" ? "study tours" : "段研学"}</span></div><div><strong>2027</strong><span>${currentLanguage() === "en" ? "cohort" : "届小升初"}</span></div></div>` },
     { eyebrow: "ABOUT ME", title: overviewTitle, detailHref: "/", detailLabel: text("completeOverview"), className: "db-presentation-overview", content: `<div class="db-presentation-overview-grid"><div class="db-presentation-overview-aside"><img class="db-presentation-avatar db-presentation-avatar-large" src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(displayName)}"><strong>${escapeHtml(text("academicStrength"))}</strong><p>${escapeHtml(shortTagline)}</p></div><div class="db-presentation-markdown">${overviewHighlights}</div></div>` },
     { eyebrow: "ACADEMIC RECORD", title: text("academicRecord"), detailHref: "/school/", detailLabel: text("completeSchool"), className: "", content: `<div class="db-presentation-academic-grid"><div class="db-presentation-markdown">${academicFallback}</div><div class="db-presentation-stat"><strong>1 / 40</strong><span>${escapeHtml(text("academicRank"))}</span><em>${escapeHtml(text("squadLeader"))}</em></div></div>` },
     { eyebrow: "MATHEMATICS", title: text("mathematics"), detailHref: "/mathematics/", detailLabel: text("completeMathematics"), className: "", content: `<div class="db-presentation-statline"><strong>10+</strong><span>${escapeHtml(text("mathAwards"))}</span></div><ul class="db-presentation-list db-presentation-list-dense">${math.rows.slice(0, 6).map(presentationCard).join("")}</ul>` },
